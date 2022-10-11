@@ -13,11 +13,15 @@ router.get('/test-me', function (req, res) {
 // =================================== Create User ============================
 router.post("/register", userController.createUser)
 router.post("/login", userController.loginUser)
-router.get("/user/:userId/",MW.authentication , userController.getUsers)
+router.get("/user/:userId/", MW.authentication, userController.getUsers)
+router.put("/user/:userId/profile",MW.authentication ,MW.authorization,userController.updateUser)
 
-// ============================ AWS=========================
 
 
+
+
+
+// ============================  Checking all request validation ========================
 router.all("/**", function (req, res) {
     return res.status(400).send({status:false , message: "Invalid request"})
 })
