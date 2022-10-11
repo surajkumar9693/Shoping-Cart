@@ -1,8 +1,9 @@
 const userModel = require('../models/userModel.js')
 const bcrypt = require("bcrypt")
+const { uploadFile } = require("../aws/aws.js")
+
 
 // ================================== Create User ===========================
-
 const createUser = async function (req, res) {
 
     try {
@@ -16,7 +17,6 @@ const createUser = async function (req, res) {
         let { fname, lname, email, profileImage, password, phone, address } = data;
 
         // ================================== FistName And LastName =================================
-
         if (!fname) {
             return res.status(400).send({ status: false, message: "Please enter your fistName" })
         }
@@ -41,28 +41,11 @@ const createUser = async function (req, res) {
         if (!/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email.trim())) {
             return res.status(400).send({ status: false, message: "Email is invalid formet" });
         };
-
-        const  duplicateEmail = await userModel.findOne({ email: email })
+        const duplicateEmail = await userModel.findOne({ email: email })
 
         if (duplicateEmail) {
             return res.status(400).send({ status: false, message: "Email Already  Exist" })
         }
-
-
-
-
-
-        // =================================== Create  ProfileImage link by AWS =======================
-        if (!profileImage) {
-            return res.status(400).send({ status: false, message: "Please enter a Profile Image" })
-        }
-
-
-
-
-
-
-
 
         // ==================================  Phone Number ===============================
         if (!phone) {
@@ -76,9 +59,8 @@ const createUser = async function (req, res) {
         }
         const duplicatePhone = await userModel.findOne({ phone: phone })
         if (duplicatePhone) {
-            return res.status(400).send({status :false , message : "Phone Already Exist"})
+            return res.status(400).send({ status: false, message: "Phone Already Exist" })
         }
-
 
         // ================================== Password  ===============================
         if (!password) {
@@ -92,118 +74,103 @@ const createUser = async function (req, res) {
         }
 
 
-
-        // ============================ Address  =========================== ye kaam nhi kar rha hai 
-
-        // if (address  && typeof address!== Object ) {
-        //     return res.status(400).send({ status: false, message: "Address is Empty" });
-        // }
-
-        //  // ============================ Address of shipping ===========================
-
-
+        // ============================ Address ===========================
         if (address) {
-        let shipping = address.shipping;
-        let street = address.shipping.street;
-        let city = address.shipping.city;
-        let pincode = address.shipping.pincode;
+            if (typeof address != "object") {
+                return res.status(400).send({ status: false, message: "address is in incorrect format" })
+            }
+            // ============================ Address of shipping ===========================
+            let shipping = address.shipping;
+            let street = address.shipping.street;
+            let city = address.shipping.city;
+            let pincode = address.shipping.pincode;
 
-        if (!shipping) {
-            return res.status(400).send({ status: false, message: "Please enter shipping address" })
-        }
-        //  ye kaam nhi kar rha hai
-        // if (typeof address.shipping !== Object) {
-        //     return res.status(400).send({ status: false, message: "Address of shipping is Empty" });
-        // }
-        if (!street) {
-            return res.status(400).send({ status: false, message: "Please enter street address" })
-        }
-        if (street.trim().length == 0) {
-            return res.status(400).send({ status: false, message: "Street of shipping is Empty" });
-        }
-        if(typeof street !== "string") {
-            return res.status(400).send({status :false , message: "Street of shipping is Invalid"})
-        }
-        
-
-        if (!city) {
+            if (!shipping) {
+                return res.status(400).send({ status: false, message: "Please enter shipping address" })
+            }
+            //  ye kaam nhi kar rha hai
+            if (typeof shipping != "object") {
+                return res.status(400).send({ status: false, message: "shipping is in incorrect format" })
+            }
+            if (!street) {
+                return res.status(400).send({ status: false, message: "Please enter street address" })
+            }
+            if (street.trim().length == 0) {
+                return res.status(400).send({ status: false, message: "Street of shipping is Empty" });
+            }
+            if (typeof street !== "string") {
+                return res.status(400).send({ status: false, message: "Street of shipping is Invalid" })
+            }
+            if (!city) {
                 return res.status(400).send({ status: false, message: "Please enter city address" })
             }
-        if (city.trim().length == 0) {
-            return res.status(400).send({ status: false, message: "City of shipping  is Empty " })
-        }
-        if (typeof street !== "string") {
-            return res.status(400).send({ status: false, message: "Street of shipping is Invalid" })
-        }
+            if (city.trim().length == 0) {
+                return res.status(400).send({ status: false, message: "City of shipping  is Empty " })
+            }
+            if (typeof street !== "string") {
+                return res.status(400).send({ status: false, message: "Street of shipping is Invalid" })
+            }
 
-        if (!pincode) {
-            return res.status(400).send({ status: false, message: "Please enter pincode" })
-        }
+            if (!pincode) {
+                return res.status(400).send({ status: false, message: "Please enter pincode" })
+            }
+            if (pincode.toString().trim().length == 0) {
+                return res.status(400).send({ status: false, message: "Pincode Of shipping is Empty" })
+            }
+            if (!/^[1-9][0-9]{5}$/.test(pincode)) {
+                return res.status(400).send({ status: false, message: "PinCode Invalid , Please provide 6 Digit Number" })
+            }
 
+            // ============================ Address of Billing ==============================
+            let billing = address.billing;
+            let b_street = address.billing.street;
+            let b_city = address.billing.city;
+            let b_pincode = address.billing.pincode;
 
-        if (pincode.toString().trim().length == 0) {
-            return res.status(400).send({ status: false, message: "Pincode Of shipping is Empty" })
-        }
-        // ye kaam nhi kar rha hai 
-        // if (typeof pincode !== Number) {
-        //     return res.status(400).send({ status: false, message: "Pincode Invalid Formet tpyeOf" })
-        // }
-        if (!/^[1-9][0-9]{5}$/.test(pincode)) {
-            return res.status(400).send({ status: false, message: "PinCode Invalid , Please provide 6 Digit Number" })
-        }
-
-
-        // ============================ Address of Billing ==============================
-        let billing = address.billing;
-        let b_street = address.billing.street;
-        let b_city = address.billing.city;
-        let b_pincode = address.billing.pincode;
-
-        if (!billing) {
-            return res.status(400).send({ status: false, message: "Please enter billing address" })
-        }
-          // ye kaam nhi kar rha hai 
-        // if (typeof address.billing !== Object) {
-        //     return res.status(400).send({ status: false, message: "Address of billing is Empty" });
-        // }
-        if (!b_street) {
-            return res.status(400).send({ status: false, message: "Please enter street address of billing " })
-        }
-        if (b_street.trim().length == 0) {
-            return res.status(400).send({ status: false, message: "Street of billing is Empty" });
-        }
-        if (typeof b_street !== "string") {
-            return res.status(400).send({ status: false, message: "Street of billing is Invalid" })
-        }
-
-
-        if (!b_city) {
-            return res.status(400).send({ status: false, message: "Please enter city address of billing" })
-        }
-        if ( b_city.trim().length == 0) {
-            return res.status(400).send({ status: false, message: "City of billing  is Empty " })
-        }
-        if (typeof b_city !== "string") {
-            return res.status(400).send({status:false, message : "City of billing is Invalid"})
-        }
-        if (!b_pincode) {
-            return res.status(400).send({ status: false, message: "Please enter pincode" })
-        }
-
-
-        if ( b_pincode.toString().trim().length == 0) {
-            return res.status(400).send({ status: false, message: "Pincode Of billing is Empty" })
-        }
-        if (typeof b_pincode !== Number) {
-            return res.status(400).send({ status: false, message: "Pincode Of billing is invalid typeof" })
-        }
-        if (!/^[1-9][0-9]{5}$/.test(b_pincode)) {
-            return res.status(400).send({ status: false, message: "PinCode Invalid , Please provide 6 Digit Number" })
+            if (!billing) {
+                return res.status(400).send({ status: false, message: "Please enter billing address" })
+            }
+            if (typeof billing != "object") {
+                return res.status(400).send({ status: false, message: "billing is in incorrect format" })
+            }
+            if (!b_street) {
+                return res.status(400).send({ status: false, message: "Please enter street address of billing " })
+            }
+            if (b_street.trim().length == 0) {
+                return res.status(400).send({ status: false, message: "Street of billing is Empty" });
+            }
+            if (typeof b_street !== "string") {
+                return res.status(400).send({ status: false, message: "Street of billing is Invalid" })
+            }
+            if (!b_city) {
+                return res.status(400).send({ status: false, message: "Please enter city address of billing" })
+            }
+            if (b_city.trim().length == 0) {
+                return res.status(400).send({ status: false, message: "City of billing  is Empty " })
+            }
+            if (typeof b_city !== "string") {
+                return res.status(400).send({ status: false, message: "City of billing is Invalid" })
+            }
+            if (!b_pincode) {
+                return res.status(400).send({ status: false, message: "Please enter pincode" })
+            }
+            if (b_pincode.toString().trim().length == 0) {
+                return res.status(400).send({ status: false, message: "Pincode Of billing is Empty" })
+            }
+            if (!/^[1-9][0-9]{5}$/.test(b_pincode)) {
+                return res.status(400).send({ status: false, message: "PinCode Invalid , Please provide 6 Digit Number" })
             }
         }
 
+        // =================================== Create  ProfileImage link by AWS =======================
+        let files = req.files
 
+        if (!(files && files.length)) {
+            return res.status(400).send({ status: false, message: "Please Provide The Profile Image" });
+        }
 
+        const uploadedProfileImage = await uploadFile(files[0])
+        data.profileImage = uploadedProfileImage
 
         //  bcrypt  Password and reAssign
         const hash = await bcrypt.hash(password, 10);
@@ -222,4 +189,55 @@ const createUser = async function (req, res) {
 }
 
 
+
+// =================================================== login User ===========================================
+
+const loginUser = async function (req, res) {
+    try {
+
+        let { email, password } = req.body
+
+        if (!isVAlidRequestBody(req.body)) {
+            return res.status(400).send({ status: false, msg: "please input email and password" })
+        }
+
+        // email is mandatory
+
+        if (!email) {
+            return res.status(400).send({ status: false, message: "EmailId is mandatory" })
+        }
+
+        // Password is mandatory
+
+        if (!password) {
+            return res.status(400).send({ status: false, message: "Password is mandatory" })
+        }
+
+        let DataChecking = await userModel.findOne({ email: email, password: password })
+        if (!DataChecking) {
+            return res.status(404).send({ msg: "Please enter valid email or password" })
+        }
+
+        let token = jwt.sign(
+            {
+                userId: DataChecking._id.toString(),
+                batch: "Plutonium",
+                organisation: "Project-5, Group-53"
+            },
+            "Products Management", {
+
+            expiresIn: '10h' // expires in 10h
+
+        });
+        return res.status(201).send({ status: true, message: token })
+    }
+    catch (error) {
+        res.status(500).send({
+            status: false, message: error.message
+        })
+    }
+
+}
+
 module.exports.createUser = createUser;
+module.exports.loginUser = loginUser;
