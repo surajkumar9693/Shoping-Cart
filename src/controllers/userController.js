@@ -266,6 +266,9 @@ const getUsers = async function(req,res){
       if(!data){
           return res.status(400).send({status:false,msg:"userId not present"})
       }
+      if(!mongoose.isValidObjectId(data)){
+        return res.status(400).send({status:false,message:" invalid authorId length"})
+      }
       let allUsers= await userModel.findById({_id:data})
       if(!allUsers){
           return res.status(404).send({status:false,message:"user not found"})
