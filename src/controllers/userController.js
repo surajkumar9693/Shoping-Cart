@@ -51,7 +51,7 @@ const createUser = async function (req, res) {
         if (duplicateEmail) {
             return res.status(400).send({ status: false, message: "Email Already  Exists" })
         }
-        
+
 
 
 
@@ -113,4 +113,55 @@ const createUser = async function (req, res) {
 }
 
 
+
+// ================================== login User ===========================
+
+const loginUser = async function (req, res) {
+    try {
+
+        let { email, password } = req.body
+
+        if (!isVAlidRequestBody(req.body)) {
+            return res.status(400).send({ status: false, msg: "please input email and password" })
+        }
+
+        // email is mandatory
+
+        if (!email) {
+            return res.status(400).send({ status: false, message: "EmailId is mandatory" })
+        }
+
+        // Password is mandatory
+
+        if (!password) {
+            return res.status(400).send({ status: false, message: "Password is mandatory" })
+        }
+
+        let DataChecking = await userModel.findOne({ email: email, password: password })
+        if (!DataChecking) {
+            return res.status(404).send({ msg: "Please enter valid email or password" })
+        }
+
+        let token = jwt.sign(
+            {
+                userId: DataChecking._id.toString(),
+                batch: "Plutonium",
+                organisation: "Project-5, Group-53"
+            },
+            "Products Management", {
+
+            expiresIn: '10h' // expires in 10h
+
+        });
+        return res.status(201).send({ status: true, message: token })
+    }
+    catch (error) {
+        res.status(500).send({
+            status: false, message: error.message
+        })
+    }
+
+}
+
 module.exports.createUser = createUser;
+module.exports.loginUser = loginUser;

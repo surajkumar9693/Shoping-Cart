@@ -9,6 +9,7 @@ router.get('/test-me', function (req, res) {
 
 // =================================== Create User ============================
 router.post("/register", userController.createUser)
+router.post("/login", userController.loginUser)
 
 
 
