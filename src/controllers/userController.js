@@ -1,7 +1,7 @@
 const userModel = require('../models/userModel.js')
 const bcrypt = require("bcrypt")
+var jwt = require('jsonwebtoken');
 const { uploadFile } = require("../aws/aws.js")
-
 
 // ================================== Create User ===========================
 const createUser = async function (req, res) {
@@ -9,7 +9,7 @@ const createUser = async function (req, res) {
     try {
 
         let data = req.body;
-
+        
         if (Object.keys(data).length == 0) {
             return res.status(400).send({ status: false, message: "Please enter Data" })
         }
@@ -46,7 +46,7 @@ const createUser = async function (req, res) {
         if (duplicateEmail) {
             return res.status(400).send({ status: false, message: "Email Already  Exist" })
         }
-
+        
         // ==================================  Phone Number ===============================
         if (!phone) {
             return res.status(400).send({ status: false, message: "Please enter phone number" })
@@ -72,14 +72,14 @@ const createUser = async function (req, res) {
         if (!/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,15}$/.test(password.trim())) {
             return res.status(400).send({ status: false, message: "Password is Invalid , Please Enter minLen 8, maxLen 15  " })
         }
+        
 
-
-        // ============================ Address ===========================
+        // ============================ Address  ===========================
         if (address) {
             if (typeof address != "object") {
                 return res.status(400).send({ status: false, message: "address is in incorrect format" })
             }
-            // ============================ Address of shipping ===========================
+        // ============================ Address of shipping ===========================
             let shipping = address.shipping;
             let street = address.shipping.street;
             let city = address.shipping.city;
@@ -88,7 +88,7 @@ const createUser = async function (req, res) {
             if (!shipping) {
                 return res.status(400).send({ status: false, message: "Please enter shipping address" })
             }
-            //  ye kaam nhi kar rha hai
+            
             if (typeof shipping != "object") {
                 return res.status(400).send({ status: false, message: "shipping is in incorrect format" })
             }
@@ -120,7 +120,7 @@ const createUser = async function (req, res) {
             if (!/^[1-9][0-9]{5}$/.test(pincode)) {
                 return res.status(400).send({ status: false, message: "PinCode Invalid , Please provide 6 Digit Number" })
             }
-
+            
             // ============================ Address of Billing ==============================
             let billing = address.billing;
             let b_street = address.billing.street;
@@ -195,49 +195,70 @@ const createUser = async function (req, res) {
 const loginUser = async function (req, res) {
     try {
 
-        let { email, password } = req.body
-
-        if (!isVAlidRequestBody(req.body)) {
-            return res.status(400).send({ status: false, msg: "please input email and password" })
+        let credential = req.body;
+        
+        if (Object.keys(credential).length == 0) {
+            return res.status(400).send({status: false, message : "Please Provide Crendential"})
         }
-
-        // email is mandatory
-
+        let { email, password } = credential;
+        
         if (!email) {
             return res.status(400).send({ status: false, message: "EmailId is mandatory" })
         }
-
-        // Password is mandatory
+        if (typeof email === 'string' && email.trim().length === 0) {
+            return res.status(400).send({ status: false, message: "email is empty" })
+        }
+        if (typeof email !== 'string') {
+            return res.status(400).send({ status: false, message: "email is should be in string format" })
+        }
 
         if (!password) {
             return res.status(400).send({ status: false, message: "Password is mandatory" })
         }
+        if (typeof password === 'string' && password.trim().length === 0) {
+            return res.status(400).send({ status: false, message: "password is empty" })
+        }
+        if (typeof password !== 'string') {
+            return res.status(400).send({ status: false, message: "password is should be in string format" })
+        }
+       
 
-        let DataChecking = await userModel.findOne({ email: email, password: password })
-        if (!DataChecking) {
-            return res.status(404).send({ msg: "Please enter valid email or password" })
+        let userEmail = await userModel.findOne({ email: email })
+        if (!userEmail) {
+            return res.status(401).send({ status: false, message: "Invalid Crendential , Correct Credential " })
+        }
+
+        //  Compare Passwords Using bcrypted
+        const cmprPassword = await bcrypt.compare(password, userEmail.password)
+
+        if (!userEmail || !cmprPassword) {
+            return res.status(401).send({status: false , message : "Invalid Crendential "})
         }
 
         let token = jwt.sign(
             {
-                userId: DataChecking._id.toString(),
-                batch: "Plutonium",
-                organisation: "Project-5, Group-53"
+                userId: userEmail._id.toString(),
+                iat: Math.floor(Date.now() / 1000)
             },
             "Products Management", {
 
             expiresIn: '10h' // expires in 10h
 
         });
-        return res.status(201).send({ status: true, message: token })
+
+        let data = {
+            userId: userEmail._id.toString(),
+            token: token
+            
+        }
+        return res.status(201).send({ status: true, message: "User login successfull",  data: data })
     }
     catch (error) {
-        res.status(500).send({
-            status: false, message: error.message
-        })
+        console.log(error)
+        res.status(500).send({ status: false, message: error.message})
     }
 
 }
 
-module.exports.createUser = createUser;
-module.exports.loginUser = loginUser;
+// DeStructuring
+module.exports = { createUser, loginUser };
