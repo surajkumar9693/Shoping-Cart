@@ -259,6 +259,25 @@ const loginUser = async function (req, res) {
     }
 
 }
+//===========================================Get Users==============================================================
+const getUsers = async function(req,res){
+    try{
+      let data = req.params.userId
+      if(!data){
+          return res.status(400).send({status:false,msg:"userId not present"})
+      }
+      let allUsers= await userModel.findById({_id:data})
+      if(!allUsers){
+          return res.status(404).send({status:false,message:"user not found"})
+      }else{
+      return res.status(200).send({status:true,data:allUsers})
+      }
+    }catch(err){
+      return res.status(500).send({message:"server issue"})
+    }
+  
+  
+  }
 
 // DeStructuring
-module.exports = { createUser, loginUser };
+module.exports = { createUser, loginUser ,getUsers};
