@@ -7,20 +7,24 @@ const userModel = require('../models/userModel.js')
 
 const authentication = async function (req, res, next) {
     try {
-        token = req.headers['x-api-key']
+      let token = req.headers["Authorization"] || req.headers["authorization"];
 
-        if (!token) { 
+      if (!token) { 
             return res.status(400).send({ status: false, message: "Token is Required" }) 
         }
+        
+      let Bearer = token.split(' ');
 
-        decodedToken = jwt.verify(token, "Products Management", (err, decode) => {
-            if (err) {
-                return res.status(400).send({ status: false, message: "Token is not correct!" })
-            }
-            req.decode = decode
+      let decodedToken = jwt.verify(Bearer[1], "Products Management", (error) => {
+        if (error) {
+          return res.status(400).send({ status: false, message: "Token is not correct!" })
+        }
 
-            next()
-        })
+        next();
+
+      });
+      
+     
 
     } catch (error) {
       console.log(error)
@@ -33,14 +37,17 @@ const authentication = async function (req, res, next) {
 
 const authorization = async function (req, res, next) {
     try {
-      const token = req.headers["x-api-key"]; // we call headers with name x-api-key
+      let token = req.headers["Authorization"] || req.headers["authorization"]; // we call headers with name x-api-key
 
       if (!token){
         res.status(401).send({ status: false, msg: "missing a mandatory token" })
       };
+      let Bearer = token.split(' ');
 
-      let decodedToken = jwt.verify(token, "Products Management");
+      let decodedToken = jwt.verify(Bearer[1], "Products Management")
       let userLoggedIn = decodedToken.userId;
+        
+
       let userId = req.params.userId
       
       if (!mongoose.isValidObjectId(userId)) {
