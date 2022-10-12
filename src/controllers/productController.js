@@ -16,7 +16,7 @@ const isValidavailableSizes = function (title) {
     return ["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(title) !== -1;
   };
 
-// ================================== Create User ===========================
+// ================================== Create product ===========================
 
 const createProduct = async function (req, res) {
 
@@ -99,6 +99,9 @@ const createProduct = async function (req, res) {
 
 }
 
+
+
+// ================================== delet product ===========================
 
 
 const Deleteproduct = async function (req, res) {
