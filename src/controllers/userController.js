@@ -30,7 +30,7 @@ const createUser = async function (req, res) {
             return res.status(400).send({ status: false, message: "Please enter your fistName" })
         }
         if (!lname) {
-            return res.status.send({ status: false, message: "Please enter your lestName" })
+            return res.status(400).send({ status: false, message: "Please enter your lestName" })
         }
 
         // ================================== Email  ===============================
