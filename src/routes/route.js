@@ -19,7 +19,11 @@ router.put("/user/:userId/profile",MW.authentication ,MW.authorization,userContr
 // =================================== product User ============================
 
 router.post("/products", productController.createProduct)
+<<<<<<< HEAD
 router.get("/products", productController.getProductByQuery)
+=======
+router.delete("/products/:productId", productController.Deleteproduct)
+>>>>>>> 383e24a3fcbb16913aca7d37f15b0bf0c62a802e
 
 
 

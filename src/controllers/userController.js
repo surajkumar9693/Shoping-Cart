@@ -383,19 +383,6 @@ const updateUser = async function (req, res) {
         return res.status(200).send({ status: true, message: "User profile updated", data: updatedUser })
 
 
-
-
-   
-
-
-
-
-
-
-
-
-
-
     }
     catch (error) {
         console.log(error)

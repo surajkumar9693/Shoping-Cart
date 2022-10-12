@@ -15,7 +15,7 @@ const isValid = function (value) {
 
 
 
-// ================================== Create User ===========================
+// ================================== Create product ===========================
 
 const createProduct = async function (req, res) {
 
@@ -189,3 +189,44 @@ const getProductByQuery = async function (req, res) {
 
 
         module.exports = { createProduct, getProductByQuery } 
+
+// ================================== delet product ===========================
+
+
+const Deleteproduct = async function (req, res) {
+    try {
+        let productId = req.params.productId
+        if (!productId) {
+            return res.status(400).send({ status: false, msg: "productId not present" })
+        }
+        if (!mongoose.isValidObjectId(productId)) {
+            return res.status(400).send({ status: false, message: " invalid productId length" })
+        }
+        let findproduct = await productsModel.findById({ _id: productId })
+        if (!findproduct) {
+            return res.status(404).send({ status: false, message: "product not found" })
+        } 
+
+        const checkproductId = await productsModel.findOne({ _id: productId, isDeleted: false })
+
+        if (!checkproductId) {
+            return res.status(404).send({ status: false, message: "product allready delete " })
+        }
+
+        let deletedproduct = await productsModel.findByIdAndUpdate({ _id: productId }, 
+            { $set: { isDeleted: true } }, 
+            { new: true });
+
+        return res.status(200).send({ status: true, message: "product sucessfully deleted", deletedproduct });
+
+
+
+    } catch (error) {
+        console.log(error)
+        return res.status(500).send({ status: false, message: error.message })
+    }
+
+
+}
+module.exports.createProduct = createProduct;
+module.exports.Deleteproduct = Deleteproduct;
