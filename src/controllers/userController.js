@@ -17,7 +17,7 @@ const createUser = async function (req, res) {
 
     try {
 
-        let data = req.body;
+        let data = req.body; 
 
         if (Object.keys(data).length == 0) {
             return res.status(400).send({ status: false, message: "Please enter Data" })
@@ -29,8 +29,14 @@ const createUser = async function (req, res) {
         if (!fname) {
             return res.status(400).send({ status: false, message: "Please enter your fistName" })
         }
+        if (!/^[a-z ,.'-]+$/i.test(data.fname)) {
+            return res.status(400).send({status: false,message: "fname should be in alphabate",});
+        }
         if (!lname) {
-            return res.status.send({ status: false, message: "Please enter your lestName" })
+            return res.status(400).send({ status: false, message: "Please enter your lestName" })
+        }
+        if (!/^[a-z ,.'-]+$/i.test(data.lname)) {
+            return res.status(400).send({status: false, message: "lname should be in alphabate",});
         }
 
         // ================================== Email  ===============================
@@ -77,6 +83,10 @@ const createUser = async function (req, res) {
 
 
         // ============================ Address  ===========================
+
+        if (!address) {
+            return res.status(400).send({ status: false, message: "Please enter address" })
+        }
         if (address) {
             if (typeof address != "object") {
                 return res.status(400).send({ status: false, message: "address is in incorrect format" })
@@ -118,7 +128,7 @@ const createUser = async function (req, res) {
             let b_city = address.billing.city;
             let b_pincode = address.billing.pincode;
 
-            if (!billing) {
+            if (!billing) { 
                 return res.status(400).send({ status: false, message: "Please enter billing address" })
             }
             if (!b_street) {

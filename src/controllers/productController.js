@@ -1,4 +1,4 @@
-const productModel = require("../controllers/productsModel.js") \
+const productModel = require("../controllers/productsModel.js") 
 
 
 
