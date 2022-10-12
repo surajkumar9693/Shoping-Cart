@@ -326,44 +326,38 @@ const updateUser = async function (req, res) {
         }
 
         // ======valiation of address================================
-        if (address) {
-            if (address.shipping) {
-                if (address.shipping.city) {
-                    if (!isValid(address.shipping.city))
-                        return res.status(400).send({ status: false, msg: 'shipping address city is not valid' })
-
-                }
-                if (address.shipping.street) {
-                    if (!isValid(address.shipping.street))
-                        return res.status(400).send({ status: false, msg: 'shipping address street is not valid' })
-
-                }
-                if (address.shipping.pincode) {
-                    if (!/^[1-9][0-9]{5}$/.test(address.shipping.pincode))
-                        return res.status(400).send({ status: false, message: "Please enter valid Pincode for shipping", });
-
-                }
-
-            }
-            if (address.billing) {
-                if (address.billing.city) {
-                    if (!isValid(address.billing.city)){
-                        return res.status(400).send({ status: false, msg: 'billing address city is not valid' })
-                    }
-                       
-                }
-                if (address.billing.street) {
-                    if (!isValid(address.billing.street))
-                        return res.status(400).send({ status: false, msg: 'billing address street is not valid' })
-                }
-                if (address.billing.pincode) {
-                    if (!/^[1-9][0-9]{5}$/.test(address.billing.pincode))
-                        return res.status(400).send({ status: false, message: "Please enter valid Pincode for billing", });
-                      
-                }
-            }
-
-        }
+        if(address){
+              if(address.shipping){
+                  if(address.shipping.city){
+                      if(!isValid(address.shipping.city)) return res.status(400).send({ status:false,msg:'shipping address city is not valid'})
+                      var shippingCity = address.shipping.city;
+                  }
+                  if(address.shipping.street){
+                      if(!isValid(address.shipping.street)) return res.status(400).send({ status:false,msg:'shipping address street is not valid'})
+                      var shippingStreet = address.shipping.street;
+                  }
+                  if(address.shipping.pincode){
+                      if (!/^[1-9][0-9]{5}$/.test(address.shipping.pincode)) return res.status(400).send({status: false,message: "Please enter valid Pincode for shipping",});
+                      var shippingPincode = Number.parse(address.shipping.pincode);
+                  }
+                  
+              }
+              if(address.billing){
+                  if(address.billing.city){
+                      if(!isValid(address.billing.city)) return res.status(400).send({ status:false,msg:'billing address city is not valid'})
+                      var billingCity = address.billing.city; 
+                  }
+                  if(address.billing.street){
+                      if(!isValid(address.billing.street)) return res.status(400).send({ status:false,msg:'billing address street is not valid'})
+                      var billingStreet = address.billing.street;
+                  }
+                  if(address.billing.pincode){
+                      if (!/^[1-9][0-9]{5}$/.test(address.billing.pincode)) return res.status(400).send({status: false,message: "Please enter valid Pincode for billing",});
+                      var billingPincode = Number.parse(address.billing.pincode);
+                  }
+              }
+      
+          }
         //======================================valiation of profileImage ================================
         let files = req.files
 
@@ -373,11 +367,8 @@ const updateUser = async function (req, res) {
         }
 
         //======================================= Update The data===============
-        let updatedUser = await userModel.findOneAndUpdate({ _id: userId },
-            { $set: { fname, lname, email, phone, password, address, profileImage } },
-            { new: true }
-        );
-        return res.status(200).send({ status: true, message: "User profile updated", data: updatedUser })
+        let updatedUser = await userModel.findOneAndUpdate({_id:userId}, {$set:{fname:fname,lname:lname,email:email,phone:phone,password:password,profileImage : uploadedFileURL,"address.shipping.city" : shippingCity, "address.shipping.street":shippingStreet,"address.shipping.pincode" : shippingPincode,"address.billing.city" : billingCity, "address.billing.street":billingStreet,"address.billing.pincode" : billingPincode}}, {new:true})
+    return res.status(200).send({test:typeof(shippingPincode),status:true,msg:'successfully updated', data:updatedUser})
 
     }
     catch (error) {
