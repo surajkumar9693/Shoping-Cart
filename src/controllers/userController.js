@@ -347,18 +347,19 @@ const updateUser = async function (req, res) {
             }
             if (address.billing) {
                 if (address.billing.city) {
-                    if (!isValid(address.billing.city))
+                    if (!isValid(address.billing.city)){
                         return res.status(400).send({ status: false, msg: 'billing address city is not valid' })
-
+                    }
+                       
                 }
                 if (address.billing.street) {
                     if (!isValid(address.billing.street))
                         return res.status(400).send({ status: false, msg: 'billing address street is not valid' })
-
                 }
                 if (address.billing.pincode) {
                     if (!/^[1-9][0-9]{5}$/.test(address.billing.pincode))
                         return res.status(400).send({ status: false, message: "Please enter valid Pincode for billing", });
+                      
                 }
             }
 
