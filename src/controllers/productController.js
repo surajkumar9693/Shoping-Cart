@@ -1,4 +1,4 @@
-const productModel = require("../controllers/productsModel.js") 
+const productModel = require("../models/productsModel.js")
 
 
 
@@ -67,7 +67,7 @@ const createProduct = async function (req, res) {
             res.status(400).send({ status: false, Message: "Please provide product's availableSizes" })
             return
         }
-        if(!(["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(availableSizes) !== -1)){
+        if (!(["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(availableSizes) !== -1)) {
             res.status(400).send({ status: false, Message: "Please provide product's  wrong availableSizes" })
         }
 
@@ -119,4 +119,89 @@ const createProduct = async function (req, res) {
 }
 
 
-module.exports.createProduct = createProduct;
+// ================================  Fetch Product By filters ===========================
+
+const getProductByQuery = async function (req, res) {
+
+    try {
+
+        let data = req.query;
+        let filter = { isDeleted: false };
+
+    let{size, name, priceGreaterTha, priceLessThan, priceSort} = data;
+
+        if (size) {
+            size = size.split(",").map(ele => ele.trim())
+            if (Array.isArray(size)) {
+                let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+                let uniqueSizes = [...new Set(size)]
+                for (let ele of uniqueSizes) {
+                    if (enumArr.indexOf(ele) == -1) {
+                        return res.status(400).send({ status: false, message: `'${ele}' is not a valid size, only these sizes are available [S, XS, M, X, L, XXL, XL]` })
+                    }
+                }
+                filter["availableSizes"] = { $in: uniqueSizes };
+            } else return res.status(400).send({ status: false, message: "size should be of type Array" })
+        }
+
+        const foundProducts = await productModel.find(filter)
+        return res.status(200).send({ status: "true", message: 'Success', data: foundProducts })
+
+
+
+
+
+
+
+
+
+
+            } catch (error) {
+                console.log(error)
+                return res.status(500).send({ status: false, message: error.message })
+            }
+
+
+
+
+
+
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        module.exports = { createProduct, getProductByQuery } 
