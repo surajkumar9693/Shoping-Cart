@@ -251,7 +251,7 @@ const getUsers = async function (req, res) {
             return res.status(400).send({ status: false, msg: "userId not present" })
         }
         if (!mongoose.isValidObjectId(data)) {
-            return res.status(400).send({ status: false, message: " invalid authorId length" })
+            return res.status(400).send({ status: false, message: " invalid userId length" })
         }
         let allUsers = await userModel.findById({ _id: data })
         if (!allUsers) {
@@ -344,7 +344,7 @@ const updateUser = async function (req, res) {
                 }
                 if (address.shipping.pincode) {
                     if (!/^[1-9][0-9]{5}$/.test(address.shipping.pincode)) return res.status(400).send({ status: false, message: "Please enter valid Pincode for shipping", });
-                    var shippingPincode = Number.parse(address.shipping.pincode);
+                    var shippingPincode = address.shipping.pincode;
                 }
 
             }
@@ -359,7 +359,7 @@ const updateUser = async function (req, res) {
                 }
                 if (address.billing.pincode) {
                     if (!/^[1-9][0-9]{5}$/.test(address.billing.pincode)) return res.status(400).send({ status: false, message: "Please enter valid Pincode for billing", });
-                    var billingPincode = Number.parse(address.billing.pincode);
+                    var billingPincode = address.billing.pincode;
                 }
             }
 
@@ -373,8 +373,27 @@ const updateUser = async function (req, res) {
         }
 
         //======================================= Update The data===============
-        let updatedUser = await userModel.findOneAndUpdate({ _id: userId }, { $set: { fname: fname, lname: lname, email: email, phone: phone, password: password, profileImage: uploadedFileURL, "address.shipping.city": shippingCity, "address.shipping.street": shippingStreet, "address.shipping.pincode": shippingPincode, "address.billing.city": billingCity, "address.billing.street": billingStreet, "address.billing.pincode": billingPincode } }, { new: true })
-        return res.status(200).send({ test: typeof (shippingPincode), status: true, msg: 'successfully updated', data: updatedUser })
+        let updatedUser = await userModel.findOneAndUpdate({ _id: userId }, {
+            $set: {
+                fname: fname, lname: lname, email: email, phone: phone, password: password, profileImage: uploadedFileURL, "address.shipping.city": shippingCity, "address.shipping.street": shippingStreet, "address.shipping.pincode": shippingPincode, "address.billing.city": billingCity, "address.billing.street": billingStreet, "address.billing.pincode": billingPincode
+            }
+        }, { new: true })
+
+        return res.status(200).send({ status: true, message: "User profile updated", data: updatedUser })
+
+
+
+
+   
+
+
+
+
+
+
+
+
+
 
     }
     catch (error) {

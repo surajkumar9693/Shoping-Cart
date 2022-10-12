@@ -54,6 +54,9 @@ const authorization = async function (req, res, next) {
         return res.status(400).send({ status: false, msg: 'Please enter valid userId Id' })
       }
       let userData = await userModel.findById(userId)
+      if (!userData) {
+        return res.status(404).send({status :false , messsage : "UserId not found "})
+      }
       let user = userData._id.toString();
       
       if (userLoggedIn != user) {
