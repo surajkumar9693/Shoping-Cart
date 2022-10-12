@@ -29,15 +29,21 @@ const createUser = async function (req, res) {
         if (!fname) {
             return res.status(400).send({ status: false, message: "Please enter your fistName" })
         }
+        if (!/^[a-z ,.'-]+$/i.test(fname)) {
+            return res.status(400).send({ status: false, message: "fname should be in alphabate", });
+        }
         if (!lname) {
             return res.status(400).send({ status: false, message: "Please enter your lestName" })
+        }
+        if (!/^[a-z ,.'-]+$/i.test(lname)) {
+            return res.status(400).send({ status: false, message: "lname should be in alphabate", });
         }
 
         // ================================== Email  ===============================
         if (!email) {
             return res.status(400).send({ status: false, message: "Please enter email" })
         };
-        if(!isValid(email)) {
+        if (!isValid(email)) {
             return res.status(400).send({ status: false, message: "Email is Empty" });
         }
         if (!/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email.trim())) {
@@ -77,6 +83,10 @@ const createUser = async function (req, res) {
 
 
         // ============================ Address  ===========================
+
+        if (!address) {
+            return res.status(400).send({ status: false, message: "Please enter address" })
+        }
         if (address) {
             if (typeof address != "object") {
                 return res.status(400).send({ status: false, message: "address is in incorrect format" })
@@ -113,33 +123,29 @@ const createUser = async function (req, res) {
             }
 
             // ============================ Address of Billing ==============================
-            let billing = address.billing;
-            let b_street = address.billing.street;
-            let b_city = address.billing.city;
-            let b_pincode = address.billing.pincode;
 
-            if (!billing) {
+            if (!address.billing) {
                 return res.status(400).send({ status: false, message: "Please enter billing address" })
             }
-            if (!b_street) {
+            if (!address.billing.street) {
                 return res.status(400).send({ status: false, message: "Please enter street address of billing " })
             }
-            if (!isValid(b_street)) {
+            if (!isValid(address.billing.street)) {
                 return res.status(400).send({ status: false, message: "Street of billing is Invalid" })
             }
-            if (!b_city) {
+            if (!address.billing.city) {
                 return res.status(400).send({ status: false, message: "Please enter city address of billing" })
             }
-            if (!isValid(b_city)) {
+            if (!isValid(address.billing.city)) {
                 return res.status(400).send({ status: false, message: "City of billing is Invalid" })
             }
-            if (!b_pincode) {
+            if (!address.billing.pincode) {
                 return res.status(400).send({ status: false, message: "Please enter pincode" })
             }
-            if (b_pincode.toString().trim().length == 0) {
+            if (address.billing.pincode.toString().trim().length == 0) {
                 return res.status(400).send({ status: false, message: "Pincode Of billing is Empty" })
             }
-            if (!/^[1-9][0-9]{5}$/.test(b_pincode)) {
+            if (!/^[1-9][0-9]{5}$/.test(address.billing.pincode)) {
                 return res.status(400).send({ status: false, message: "PinCode Invalid , Please provide 6 Digit Number" })
             }
         }
@@ -255,7 +261,7 @@ const getUsers = async function (req, res) {
         }
     } catch (error) {
         console.log(error)
-        return res.status(500).send({ status:false,  message: error.message })
+        return res.status(500).send({ status: false, message: error.message })
     }
 
 
@@ -329,36 +335,31 @@ const updateUser = async function (req, res) {
         if (address) {
             if (address.shipping) {
                 if (address.shipping.city) {
-                    if (!isValid(address.shipping.city))
-                        return res.status(400).send({ status: false, msg: 'shipping address city is not valid' })
-
+                    if (!isValid(address.shipping.city)) return res.status(400).send({ status: false, msg: 'shipping address city is not valid' })
+                    var shippingCity = address.shipping.city;
                 }
                 if (address.shipping.street) {
-                    if (!isValid(address.shipping.street))
-                        return res.status(400).send({ status: false, msg: 'shipping address street is not valid' })
-
+                    if (!isValid(address.shipping.street)) return res.status(400).send({ status: false, msg: 'shipping address street is not valid' })
+                    var shippingStreet = address.shipping.street;
                 }
                 if (address.shipping.pincode) {
-                    if (!/^[1-9][0-9]{5}$/.test(address.shipping.pincode))
-                        return res.status(400).send({ status: false, message: "Please enter valid Pincode for shipping", });
-
+                    if (!/^[1-9][0-9]{5}$/.test(address.shipping.pincode)) return res.status(400).send({ status: false, message: "Please enter valid Pincode for shipping", });
+                    var shippingPincode = Number.parse(address.shipping.pincode);
                 }
 
             }
             if (address.billing) {
                 if (address.billing.city) {
-                    if (!isValid(address.billing.city))
-                        return res.status(400).send({ status: false, msg: 'billing address city is not valid' })
-
+                    if (!isValid(address.billing.city)) return res.status(400).send({ status: false, msg: 'billing address city is not valid' })
+                    var billingCity = address.billing.city;
                 }
                 if (address.billing.street) {
-                    if (!isValid(address.billing.street))
-                        return res.status(400).send({ status: false, msg: 'billing address street is not valid' })
-
+                    if (!isValid(address.billing.street)) return res.status(400).send({ status: false, msg: 'billing address street is not valid' })
+                    var billingStreet = address.billing.street;
                 }
                 if (address.billing.pincode) {
-                    if (!/^[1-9][0-9]{5}$/.test(address.billing.pincode))
-                        return res.status(400).send({ status: false, message: "Please enter valid Pincode for billing", });
+                    if (!/^[1-9][0-9]{5}$/.test(address.billing.pincode)) return res.status(400).send({ status: false, message: "Please enter valid Pincode for billing", });
+                    var billingPincode = Number.parse(address.billing.pincode);
                 }
             }
 
@@ -372,16 +373,13 @@ const updateUser = async function (req, res) {
         }
 
         //======================================= Update The data===============
-        let updatedUser = await userModel.findOneAndUpdate({ _id: userId },
-            { $set: { fname, lname, email, phone, password, address, profileImage } },
-            { new: true }
-        );
-        return res.status(200).send({ status: true, message: "User profile updated", data: updatedUser })
+        let updatedUser = await userModel.findOneAndUpdate({ _id: userId }, { $set: { fname: fname, lname: lname, email: email, phone: phone, password: password, profileImage: uploadedFileURL, "address.shipping.city": shippingCity, "address.shipping.street": shippingStreet, "address.shipping.pincode": shippingPincode, "address.billing.city": billingCity, "address.billing.street": billingStreet, "address.billing.pincode": billingPincode } }, { new: true })
+        return res.status(200).send({ test: typeof (shippingPincode), status: true, msg: 'successfully updated', data: updatedUser })
 
     }
     catch (error) {
         console.log(error)
-       res.status(500).send({ status: false, message: error.message })
+        res.status(500).send({ status: false, message: error.message })
     }
 }
 // DeStructuring
