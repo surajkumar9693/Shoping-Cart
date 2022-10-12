@@ -1,6 +1,7 @@
 const express = require("express")
 const router = express.Router()
 const userController = require("../controllers/userController")
+const productController = require("../controllers/productController")
 const middleware = require("../middleware/middleware.js")
 const MW =require("../middleware/middleware.js")
 
@@ -16,6 +17,10 @@ router.post("/login", userController.loginUser)
 router.get("/user/:userId/", MW.authentication, userController.getUsers)
 router.put("/user/:userId/profile",MW.authentication ,MW.authorization,userController.updateUser)
 
+
+// =================================== product User ============================
+
+router.post("/products", productController.createProduct)
 
 
 
