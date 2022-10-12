@@ -21,6 +21,7 @@ router.put("/user/:userId/profile",MW.authentication ,MW.authorization,userContr
 // =================================== product User ============================
 
 router.post("/products", productController.createProduct)
+router.delete("/products/:productId", productController.Deleteproduct)
 
 
 
