@@ -20,7 +20,7 @@ router.put("/user/:userId/profile",MW.authentication ,MW.authorization,userContr
 
 router.post("/products", productController.createProduct)
 router.get("/products", productController.getProductByQuery)
-router.get("/products/:productId",productController.getProductById)
+router.get("/products/:productId",productController.getProductById) 
 router.put("/products/:productId", productController.updateProductById)
 router.delete("/products/:productId", productController.Deleteproduct)
 
