@@ -90,6 +90,26 @@ const createProduct = async function (req, res) {
 
 }
 
+//=====================================get Product By Id===========================
+
+const getProductById = async function (req, res) {
+    try {
+        let data = req.params.productId
+
+        if (!mongoose.isValidObjectId(data)) {
+            return res.status(400).send({ status: false, message: " invalid userId length" })
+        }
+        let allProducts = await productsModel.findById({ _id: data })
+        if (!allProducts || allProducts.isDeleted === true) {
+            return res.status(404).send({ status: false, message: "product not found" })
+        } else {
+            res.status(200).send({ status: true, message: allProducts })
+        }
+    } catch (err) {
+        res.status(500).send({ status: false, message: "server issue" })
+    }
+}
+
 
 
 // ================================== delet product ===========================
@@ -212,5 +232,5 @@ const updateProductById = async function(req,res){
 
 module.exports.createProduct = createProduct;
 module.exports.Deleteproduct = Deleteproduct;
-
+module.exports.getProductById = getProductById
 module.exports.updateProductById = updateProductById;
