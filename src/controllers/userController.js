@@ -78,53 +78,50 @@ const createUser = async function (req, res) {
             return res.status(400).send({ status: false, message: "Password is Empty" })
         }
         if (!/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,15}$/.test(password.trim())) {
-            return res.status(400).send({ status: false, message: "Password is Invalid , Please Enter minLen 8, maxLen 15  " })
+            return res.status(400).send({ status: false, message: " Please Enter minLen 8, maxLen 15 (please provide e.g-> suraj@1234) " })
         }
 
 
         // ============================ Address  ===========================
-
         if (!address) {
             return res.status(400).send({ status: false, message: "Please enter address" })
         }
+        address = JSON.parse(address)
         if (address) {
             if (typeof address != "object") {
                 return res.status(400).send({ status: false, message: "address is in incorrect format" })
             }
             // ============================ Address of shipping ===========================
-            let shipping = address.shipping;
-            let street = address.shipping.street;
-            let city = address.shipping.city;
-            let pincode = address.shipping.pincode;
+          
 
-            if (!shipping) {
+            if (!address.shipping) {
                 return res.status(400).send({ status: false, message: "Please enter shipping address" })
             }
-            if (!street) {
+            if (!address.shipping.street) {
                 return res.status(400).send({ status: false, message: "Please enter street address" })
             }
-            if (!isValid(street)) {
+            if (!isValid(address.shipping.street)) {
                 return res.status(400).send({ status: false, message: "Street of shipping is Invalid" });
             }
-            if (!city) {
+            if (!address.shipping.city) {
                 return res.status(400).send({ status: false, message: "Please enter city address" })
             }
-            if (!isValid(city)) {
+            if (!isValid(address.shipping.city)) {
                 return res.status(400).send({ status: false, message: "City of shipping  is  Invalid" })
             }
-            if (!pincode) {
+            if (!address.shipping.pincode) {
                 return res.status(400).send({ status: false, message: "Please enter pincode" })
             }
-            if (pincode.toString().trim().length == 0) {
+            if (address.shipping.pincode.toString().trim().length == 0) {
                 return res.status(400).send({ status: false, message: "Pincode Of shipping is Empty" })
             }
-            if (!/^[1-9][0-9]{5}$/.test(pincode)) {
+            if (!/^[1-9][0-9]{5}$/.test(address.shipping.pincode)) {
                 return res.status(400).send({ status: false, message: "PinCode Invalid , Please provide 6 Digit Number" })
             }
 
             // ============================ Address of Billing ==============================
 
-            if (!address.billing) {
+            if (!address.billing) { 
                 return res.status(400).send({ status: false, message: "Please enter billing address" })
             }
             if (!address.billing.street) {
@@ -163,6 +160,8 @@ const createUser = async function (req, res) {
         //  bcrypt  Password and reAssign
         const hash = await bcrypt.hash(password, 10);
         data.password = hash;
+        
+        data.address = address;
 
 
         const userData = await userModel.create(data)
@@ -257,7 +256,7 @@ const getUsers = async function (req, res) {
         if (!allUsers) {
             return res.status(404).send({ status: false, message: "user not found" })
         } else {
-            return res.status(200).send({ status: true, data: allUsers })
+            return res.status(200).send({ status: true,message:"User profile details", data: allUsers })
         }
     } catch (error) {
         console.log(error)

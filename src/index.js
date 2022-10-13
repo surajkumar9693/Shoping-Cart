@@ -6,7 +6,7 @@ const multer = require('multer');
 const route = require('./routes/route.js');
 const app = express();
 
-// app.use(express.json());
+app.use(express.json());
 app.use(bodyParser.json())
 app.use(multer().any());
 
