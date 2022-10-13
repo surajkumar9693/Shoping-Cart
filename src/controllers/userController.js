@@ -33,7 +33,7 @@ const createUser = async function (req, res) {
             return res.status(400).send({ status: false, message: "fname should be in alphabate", });
         }
         if (!lname) {
-            return res.status(400).send({ status: false, message: "Please enter your lestName" })
+            return res.status(400).send({ status: false, message: "Please enter your lastName" })
         }
         if (!/^[a-z ,.'-]+$/i.test(lname)) {
             return res.status(400).send({ status: false, message: "lname should be in alphabate", });
@@ -44,10 +44,10 @@ const createUser = async function (req, res) {
             return res.status(400).send({ status: false, message: "Please enter email" })
         };
         if (!isValid(email)) {
-            return res.status(400).send({ status: false, message: "Email is Empty" });
+            return res.status(400).send({ status: false, message: "Email entered is of Invalid Type" });
         }
         if (!/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email.trim())) {
-            return res.status(400).send({ status: false, message: "Email is invalid formet" });
+            return res.status(400).send({ status: false, message: "Email is invalid format" });
         };
         const duplicateEmail = await userModel.findOne({ email: email })
 
@@ -63,7 +63,7 @@ const createUser = async function (req, res) {
             return res.status(400).send({ status: false, message: "Phone is Empty" })
         }
         if (!/^[789]\d{9}$/.test(phone.trim())) {
-            return res.status(400).send({ status: false, message: "Phone is Invalid" })
+            return res.status(400).send({ status: false, message: "phone number should be valid number. Should atrt with 8 or 7 or 9 and total of 10 digits" })
         }
         const duplicatePhone = await userModel.findOne({ phone: phone })
         if (duplicatePhone) {
@@ -78,7 +78,7 @@ const createUser = async function (req, res) {
             return res.status(400).send({ status: false, message: "Password is Empty" })
         }
         if (!/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,15}$/.test(password.trim())) {
-            return res.status(400).send({ status: false, message: " Please Enter minLen 8, maxLen 15 (please provide e.g-> suraj@1234) " })
+            return res.status(400).send({ status: false, message: " Please Enter minLen 8, maxLen 15 (please provide e.g-> suraj@1234). Also It should have aleast One capital Letter, special character, digit and small letter" })
         }
 
 
@@ -314,7 +314,7 @@ const updateUser = async function (req, res) {
         // ================================ valiation of phone================================
         if (phone) {
 
-            if (!/^[789]\d{9}$/.test(phone.trim())) return res.status(400).send({ status: false, message: "phone number should be valid number", });
+            if (!/^[789]\d{9}$/.test(phone.trim())) return res.status(400).send({ status: false, message: "phone number should be valid number Should atrt with 8 or 7 or 9 and total of 10 digits", });
 
             let dupPhone = await userModel.findOne({ phone: phone });
             if (dupPhone) return res.status(400).send({ status: false, msg: "phone is already registered" });
@@ -324,6 +324,9 @@ const updateUser = async function (req, res) {
         // ==================================valiation of password================================
         if (password) {
             if (password.length < 8 || password.length > 15) return res.status(400).send({ status: false, msg: "Password length should be 8 to 15" });
+            if (!/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,15}$/.test(password.trim())) {
+                return res.status(400).send({ status: false, message: " Please Enter minLen 8, maxLen 15 (please provide e.g-> suraj@1234). Also It should have aleast One capital Letter, special character, digit and small letter" })
+            }
             let user = await userModel.findById(userId);
             // check if passsword is same as previous one 
             let same = bcrypt.compareSync(password, user.password);
