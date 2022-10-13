@@ -83,6 +83,7 @@ const createUser = async function (req, res) {
 
 
         // ============================ Address  ===========================
+
         if (!address) {
             return res.status(400).send({ status: false, message: "Please enter address" })
         }

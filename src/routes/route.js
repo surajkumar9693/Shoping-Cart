@@ -2,7 +2,6 @@ const express = require("express")
 const router = express.Router()
 const userController = require("../controllers/userController")
 const productController = require("../controllers/productController")
-const middleware = require("../middleware/middleware.js")
 const MW =require("../middleware/middleware.js")
 
 
@@ -14,16 +13,16 @@ router.get('/test-me', function (req, res) {
 // =================================== Create User ============================
 router.post("/register", userController.createUser)
 router.post("/login", userController.loginUser)
-router.get("/user/:userId/", MW.authentication, userController.getUsers)
+router.get("/user/:userId/profile", MW.authentication, userController.getUsers)
 router.put("/user/:userId/profile",MW.authentication ,MW.authorization,userController.updateUser)
-
 
 // =================================== product User ============================
 
 router.post("/products", productController.createProduct)
-router.delete("/products/:productId", productController.Deleteproduct)
+router.get("/products", productController.getProductByQuery)
 router.get("/products/:productId",productController.getProductById)
 router.put("/products/:productId", productController.updateProductById)
+router.delete("/products/:productId", productController.Deleteproduct)
 
 
 
