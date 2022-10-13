@@ -70,7 +70,7 @@ const createProduct = async function (req, res) {
         // =================================== Create  ProfileImage link by AWS =======================
         let files = req.files
 
-        if (!(files && files.length)) {
+        if (!(files && files.length>0)) {
             return res.status(400).send({ status: false, message: "Please Provide The product Image" });
         }
 
