@@ -11,6 +11,10 @@ const isValid = function (value) {
     if (value === 0) return false
     return true;
 }
+const isValidavailableSizes = function (availableSizes) {
+    return ["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(availableSizes) !== -1;
+}
+
 
 
 
@@ -93,7 +97,7 @@ const createProduct = async function (req, res) {
 
 
         const saveProductDetails = await productsModel.create(requestBody);
-        return res.status(201).send({ status: true, message: "Product Successfully Created", data: saveProductDetails });
+        return res.status(201).send({ status: true, message: 'Success', data: saveProductDetails });
 
     }
     catch (err) {
@@ -103,6 +107,7 @@ const createProduct = async function (req, res) {
 }
 
 
+
 // ================================  Fetch Product By Qurery filters ===========================
 
 const getProductByQuery = async function (req, res) {
@@ -110,11 +115,11 @@ const getProductByQuery = async function (req, res) {
     try {
 
         let data = req.query;
-        // let filter = { isDeleted: false };
+    
         let filter = { isDeleted: false }
-        if (Object.keys(data).length == 0) {
-            return res.status(400).send({ status: false, message: "Please Provide data In Params" })
-        }
+        // if (Object.keys(data).length == 0) {
+        //     return res.status(400).send({ status: false, message: "Please Provide data In Params" })
+        // }
 
         let { size, name, priceGreaterThan, priceLessThan, priceSort } = data;
 
@@ -128,20 +133,6 @@ const getProductByQuery = async function (req, res) {
                 filter['availableSizes'] = filterSize
             }
         }
-
-        // if (size) {
-        //     size = size.split(",").map(ele => ele.trim())
-        //     if (Array.isArray(size)) {
-        //         let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-        //         let uniqueSizes = [...new Set(size)]
-        //         for (let ele of uniqueSizes) {
-        //             if (enumArr.indexOf(ele) == -1) {
-        //                 return res.status(400).send({ status: false, message: `'${ele}' is not a valid size, only these sizes are available [S, XS, M, X, L, XXL, XL]` })
-        //             }
-        //         }
-        //         filter["availableSizes"] = { $in: uniqueSizes };
-        //     } else return res.status(400).send({ status: false, message: "size should be of type Array" })
-        // }
 
 
 
@@ -193,7 +184,7 @@ const getProductByQuery = async function (req, res) {
         if (!foundProducts.length > 0) {
             return res.status(404).send({ stastus: false, message: "Not Found Products" })
         }
-        return res.status(200).send({ status: "true", message: 'Success', data: foundProducts })
+        return res.status(200).send({ status: true, message: 'Success', data: foundProducts })
 
     } catch (error) {
         console.log(error)
