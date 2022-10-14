@@ -70,7 +70,7 @@ const createProduct = async function (req, res) {
         // =================================== Create  ProfileImage link by AWS =======================
         let files = req.files
 
-        if (!(files && files.length)) {
+        if (!(files && files.length>0)) {
             return res.status(400).send({ status: false, message: "Please Provide The product Image" });
         }
 
@@ -268,7 +268,7 @@ const updateProductById = async function (req, res) {
         }
         //=====================if product image is present===================
         if (req.files && req.files.length > 0) {
-
+            let files=req.files
             //=================upload to s3 and get the uploaded link===============
             var uploadedFileURL = await upload.uploadFile(files[0]);
             data.productImage = uploadedFileURL
