@@ -27,10 +27,10 @@ router.delete("/products/:productId", productController.Deleteproduct)
 
 // =================================== product User ============================
 
-router.post("/users/:userId/cart", cartController.createcart)
-router.put("/users/:userId/cart", cartController.updatecart)
-router.get("/users/:userId/cart", cartController.getcart)
-router.delete("/users/:userId/cart", cartController.deletecart)
+router.post("/users/:userId/cart", cartController.createCart)
+// router.put("/users/:userId/cart", cartController.updatecart)
+// router.get("/users/:userId/cart", cartController.getcart)
+// router.delete("/users/:userId/cart", cartController.deletecart)
 
 
 

@@ -147,13 +147,18 @@ const createUser = async function (req, res) {
                 return res.status(400).send({ status: false, message: "PinCode Invalid , Please provide 6 Digit Number" })
             }
         }
+     
 
         // =================================== Create  ProfileImage link by AWS =======================
         let files = req.files
+        let profile = files.profile;
 
         if (!(files && files.length)) {
             return res.status(400).send({ status: false, message: "Please Provide The Profile Image" });
         }
+        // if (!(/\.(jpe?g|tiff?|png|webp|bmp)$/i.test(files.originalname))) {
+        //     return res.status(400).send({status:false, message: "Invalid profile"})
+        // }
 
         const uploadedProfileImage = await uploadFile(files[0])
         data.profileImage = uploadedProfileImage
