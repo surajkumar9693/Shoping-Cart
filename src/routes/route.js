@@ -3,6 +3,7 @@ const router = express.Router()
 const userController = require("../controllers/userController")
 const productController = require("../controllers/productController")
 const cartController = require("../controllers/cartController")
+const orderController = require("../controllers/orderController")
 const MW =require("../middleware/middleware.js")
 
 
@@ -25,13 +26,18 @@ router.get("/products/:productId",productController.getProductById)
 router.put("/products/:productId", productController.updateProductById)
 router.delete("/products/:productId", productController.Deleteproduct)
 
-// =================================== product User ============================
+// =================================== cart User ============================
 
-router.post("/users/:userId/cart", cartController.createcart)
-router.put("/users/:userId/cart", cartController.updatecart)
-router.get("/users/:userId/cart", cartController.getcart)
-router.delete("/users/:userId/cart", cartController.deletecart)
+router.post("/users/:userId/cart",MW.authentication ,MW.authorization, cartController.createcart)
+router.put("/users/:userId/cart",MW.authentication ,MW.authorization, cartController.updatecart)
+router.get("/users/:userId/cart", MW.authentication ,MW.authorization,cartController.getcart)
+router.delete("/users/:userId/cart",MW.authentication ,MW.authorization, cartController.deletecart)
 
+
+// =================================== order User ============================
+
+
+router.post("/users/:userId/orders", orderController.createorder)
 
 
 // ============================  Checking all request validation ========================
