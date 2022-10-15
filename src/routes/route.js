@@ -28,8 +28,8 @@ router.delete("/products/:productId", productController.Deleteproduct)
 
 // =================================== cart User ============================
 
-router.post("/users/:userId/cart",MW.authentication ,MW.authorization, cartController.createcart)
-router.put("/users/:userId/cart",MW.authentication ,MW.authorization, cartController.updatecart)
+// router.post("/users/:userId/cart",MW.authentication ,MW.authorization, cartController.createcart)
+// router.put("/users/:userId/cart",MW.authentication ,MW.authorization, cartController.updatecart)
 router.get("/users/:userId/cart", MW.authentication ,MW.authorization,cartController.getcart)
 router.delete("/users/:userId/cart",MW.authentication ,MW.authorization, cartController.deletecart)
 
@@ -44,4 +44,4 @@ router.post("/users/:userId/orders", orderController.createorder)
 router.all("/**", function (req, res) {
     return res.status(400).send({status:false , message: "Invalid request"})
 })
-module.exports = router;
+module.exports = router; 
