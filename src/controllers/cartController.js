@@ -2,7 +2,7 @@ const cartModel = require("../models/cartModels.js")
 const userModel = require('../models/userModel.js')
 const productModel = require("../models/productsModel.js")
 const mongoose = require('mongoose');
-
+const ObjectId = mongoose.Types.ObjectId
 //  =================================== Validation Value Of Create cart ==================
 
 const isValid = function (value) {
@@ -150,7 +150,7 @@ const updatecart = async function (req, res) {
         if (!isValid(userId)) return res.status(400).send({ status: false, msg: 'enter a valid userId in params' })
 
         // ========================Checking user ID Exsistance===========
-        let userExsits = await cartModel.findOne(mongoose.isValidObjectId.userId)
+        let userExsits = await userModel.findOne(userId)
        
         if (!userExsits) return res.status(404).send({ status: false, message: " user ID does not exists" })
         
@@ -166,7 +166,7 @@ const updatecart = async function (req, res) {
 
         // ========================Checking cart ID Exsistance===========
         let cartExsits = await cartModel.findById(cartId)
-       
+
         if (!cartExsits) return res.status(404).send({ status: false, message: " Cart ID does not exists" })
 
         let cartItems = cartExsits.items
