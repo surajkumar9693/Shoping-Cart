@@ -45,11 +45,18 @@ const createCart = async function (req, res) {
 
         if (!mongoose.isValidObjectId(productId))
             return res.status(400).send({ status: false, message: "Incorrect productId" })
+        
+            
+        let product = await productModel.findById(productId)
+        if (!product || product.isDeleted == true) {
+            return res.status(404).send({ status: false, message: "product not found" })
+        }
 
 
         if (cartId) {
             if (!isValid(cartId))
                 return res.status(400).send({ status: false, message: "Incorrect cartId" })
+            
             if (!mongoose.isValidObjectId(cartId))
                 return res.status(400).send({ status: false, message: "Incorrect cartId" })
 
@@ -61,14 +68,13 @@ const createCart = async function (req, res) {
         }
         if (typeof quantity != "number") return res.status(400).send({ status: false, message: "Incorrect quantity" })
 
-        let product = await productModel.findById(productId)
-        if (!product || product.isDeleted == true) {
-            return res.status(404).send({ status: false, message: "product not found" })
-        }
+
 
         if (cartId) {
             const cart = await cartModel.findById(cartId).populate([{ path: "items.productId" }])
-            if (!cart) return res.status(404).send({ status: false, message: "Cart does not exist with this cartId" })
+
+            if (!cart)
+                return res.status(404).send({ status: false, message: "Cart does not exist with this cartId" })
 
             if (userId != cart.userId) {
                 return res.status(403).send({ status: false, message: "not authorized" })
@@ -88,7 +94,7 @@ const createCart = async function (req, res) {
                     flag = false
                 }
             }
-            
+
             //if product  not already exist  our cart then add the cart
             if (flag == true) {
                 itemsArr.push({ productId: productId, quantity: quantity })
@@ -125,9 +131,9 @@ const createCart = async function (req, res) {
             return res.status(201).send({ status: true, message: "Success", data: cart })
         }
     }
-    catch (err) {
-        console.log(err)
-        return res.status(500).send({ status: false, message: err.message })
+    catch (error) {
+        console.log(error)
+        return res.status(500).send({ status: false, message: error.message })
     }
 }
 
