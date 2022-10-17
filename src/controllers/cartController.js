@@ -150,7 +150,7 @@ const updatecart = async function (req, res) {
         if (!isValid(userId)) return res.status(400).send({ status: false, msg: 'enter a valid userId in params' })
 
         // ========================Checking user ID Exsistance===========
-        let userExsits = await userModel.findOne(userId)
+        let userExsits = await cartModel.findOne(mongoose.isValidObjectId.userId)
        
         if (!userExsits) return res.status(404).send({ status: false, message: " user ID does not exists" })
         
