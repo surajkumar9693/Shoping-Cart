@@ -33,10 +33,12 @@ router.put("/users/:userId/cart", MW.authentication ,MW.authorization,cartContro
 router.get("/users/:userId/cart",MW.authentication ,MW.authorization, cartController.getcart)
 router.delete("/users/:userId/cart",MW.authentication ,MW.authorization, cartController.deletecart)
 
+
 // =================================== order User ============================
 
 
 router.post("/users/:userId/orders", orderController.createorder)
+router.get("/users/:userId/orders",orderController.updateOrder)
 
 
 // ============================  Checking all request validation ========================
