@@ -37,6 +37,7 @@ router.delete("/users/:userId/cart",MW.authentication ,MW.authorization, cartCon
 
 
 router.post("/users/:userId/orders", orderController.createorder)
+router.get("/users/:userId/orders",orderController.updateOrder)
 
 
 // ============================  Checking all request validation ========================
