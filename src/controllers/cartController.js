@@ -77,9 +77,7 @@ const createCart = async function (req, res) {
             if (!cart)
                 return res.status(404).send({ status: false, message: "Cart does not exist with this cartId" })
 
-            if (userId != cart.userId) {
-                return res.status(403).send({ status: false, message: "not authorized" })
-            }
+            
 
             let itemsArr = cart.items
             let totalPrice = cart.totalPrice
