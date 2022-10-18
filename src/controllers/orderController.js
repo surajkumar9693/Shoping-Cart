@@ -34,43 +34,39 @@ const createorder = async function (req, res) {
         }
 
         let finduser = await userModel.findById({ _id: userId })
-        if(!finduser) {
+        if (!finduser) {
             return res.status(404).send({ status: false, message: "user not found" })
         }
 
         let cartId = req.body.cartId;
-       
-        console.log("cardId=>",cartId)
 
-        if(!cartId){
+        if (!cartId) {
             return res.status(400).send({ status: false, msg: "cartId not given" })
         }
-    
+
         if (!mongoose.isValidObjectId(cartId)) {
             return res.status(400).send({ status: false, message: " invalid cartId length" })
         }
 
-        let findcart = await cartModel.findOne({_id: cartId})
-        const {items,totalPrice, totalItems ,  cancellable , status} = findcart
+        // let findcart = await cartModel.findOne({_id: cartId}) 
 
-        // console.log("findcart=>",findcart)
-        
-        if(!findcart){
+        let findcart = await cartModel.findById(cartId)
+
+        if (!findcart) {
             return res.status(404).send({ status: false, message: "cart not found" })
         }
+        let totalQuantity = 0
+        let cartitems=findcart.items
+        for (let i = 0; i < cartitems.length; i++) totalQuantity += findcart.items[i].quantity
 
-        
-        let totalQuantity = findcart.items.reduce((a,b)=> a.quantity+ b.quantity);
-        console.log(totalQuantity)
+
         let data = {
-            totalQuantity: Number(totalQuantity),
-            items:items,
-            totalPrice:totalPrice,
-            totalItems: totalItems, 
-            cancellable: cancellable, 
-            status: status,
+            totalQuantity: totalQuantity,
+            items: findcart.items,
+            totalPrice: findcart.totalPrice,
+            totalItems: findcart.totalItems,
             userId: userId
- 
+
         }
 
 
