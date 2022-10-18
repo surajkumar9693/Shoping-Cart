@@ -27,7 +27,7 @@ const createorder = async function (req, res) {
     try {
         let userId = req.params.userId
         if (!userId) {
-            return res.status(400).send({ status: false, msg: "userId not present" })
+            return res.status(400).send({ status: false, msg: "userId not provided" })
         }
         if (!mongoose.isValidObjectId(userId)) {
             return res.status(400).send({ status: false, message: " invalid userId length" })
@@ -38,68 +38,44 @@ const createorder = async function (req, res) {
             return res.status(404).send({ status: false, message: "user not found" })
         }
 
-        let data = req.body;
+        let cartId = req.body.cartId;
+       
+        console.log("cardId=>",cartId)
 
-        let { items,totalPrice, totalItems , totalQuantity, cancellable , status} = data
-
-        if (Object.keys(data).length == 0) {
-        return res.status(400).send({ status: false, msg: ' please Enter the order details ' })
+        if(!cartId){
+            return res.status(400).send({ status: false, msg: "cartId not given" })
         }
-
-        if (!isValid(items)) {
-            return res.status(400).send({ status: false, Message: "Please provide order items" })
-        }
-
-        if(items){
-            let productId = req.body.productId
-            if (!productId) {
-                return res.status(400).send({ status: false, msg: "productId not present" })
-            }
-            if (!mongoose.isValidObjectId(productId)) {
-                return res.status(400).send({ status: false, message: " invalid productId length" })
-            }
     
-            let findproduct = await productModel.findById({ _id: productId })
-            if(!findproduct) {
-                return res.status(404).send({ status: false, message: "product not found" })
-            }
-
-            if (!isValid(quantity)) {
-                return res.status(400).send({ status: false, Message: "Please provide order quantity" })
-            }
-
-            if (!Number(quantity)) {
-                return res.status(400).send({ status: !true, Message: " quantity must be a number" })
-            }
-            
+        if (!mongoose.isValidObjectId(cartId)) {
+            return res.status(400).send({ status: false, message: " invalid cartId length" })
         }
 
+        let findcart = await cartModel.findOne({_id: cartId})
+        const {items,totalPrice, totalItems ,  cancellable , status} = findcart
 
-        if (!isValid(totalPrice)) {
-            return res.status(400).send({ status: false, Message: "Please provide order totalprice" })
-        }
-        if (!Number(totalPrice)) {
-            return res.status(400).send({ status: !true, Message: " price must be a number" })
-        }
-        if (!isValid(totalItems)) {
-            return res.status(400).send({ status: false, Message: "Please provide order totalItems" })
-        }
-        if (!Number(totalItems)) {
-            return res.status(400).send({ status: !true, Message: " totalItems must be a number" })
-        }
-        if (!isValid(totalQuantity)) {
-            return res.status(400).send({ status: false, Message: "Please provide order totalQuantity" })
-        }
-        if (!Number(totalQuantity)) {
-            return res.status(400).send({ status: !true, Message: " totalQuantity must be a number" })
+        // console.log("findcart=>",findcart)
+        
+        if(!findcart){
+            return res.status(404).send({ status: false, message: "cart not found" })
         }
 
-        if (!isValidstatus(status)) {
-            return res.status(400).send({ status: false, message: "isValidstatus is missing or you left empty" });
+        
+        let totalQuantity = findcart.items.reduce((a,b)=> a.quantity+ b.quantity);
+        console.log(totalQuantity)
+        let data = {
+            totalQuantity: Number(totalQuantity),
+            items:items,
+            totalPrice:totalPrice,
+            totalItems: totalItems, 
+            cancellable: cancellable, 
+            status: status,
+            userId: userId
+ 
         }
 
-        const userData = await orderModel.create(data)
-        return res.status(201).send({ status: true, message: "User created successfully", data: userData })
+
+        const orderData = await orderModel.create(data)
+        return res.status(201).send({ status: true, message: "User created successfully", data: orderData })
 
     } catch (error) {
         console.log(error)
