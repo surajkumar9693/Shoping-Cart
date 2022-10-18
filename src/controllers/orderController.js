@@ -108,6 +108,27 @@ const createorder = async function (req, res) {
 
 
 }
+//====================================Update Order==============================================
+
+const updateOrder = async function(req,res){
+    let userId = req.params.userId
+    
+    let user = await userModel.findById({_id:userId})
+        if(!user){
+return res.send("not present")
+        }
+
+    
+
+    let orderId = req.body.orderId
+    let order = await orderModel.findById({_id:orderId})
+    if(order.userId !== user.userId){
+        return res.status(404).send({msg:"not found"})
+    }
+    let update = await orderModel.findOneAndUpdate({_id:userId},{status:cancled},{new:true})
+return res.send(update)
+}
 
 
 module.exports.createorder = createorder
+module.exports.updateOrder = updateOrder

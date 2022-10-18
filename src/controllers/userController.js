@@ -153,7 +153,7 @@ const createUser = async function (req, res) {
         let files = req.files
         let profile = files.profile;
 
-        if (!(files && files.length)) {
+        if (!(files && files.length>0)) {
             return res.status(400).send({ status: false, message: "Please Provide The Profile Image" });
         }
         // if (!(/\.(jpe?g|tiff?|png|webp|bmp)$/i.test(files.originalname))) {
