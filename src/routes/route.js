@@ -7,11 +7,6 @@ const orderController = require("../controllers/orderController")
 const MW =require("../middleware/middleware.js")
 
 
-
-router.get('/test-me', function (req, res) {
-    return res.status(200).send({status:true, message:"My fist Api "})
-})
-
 // =================================== Create User ============================
 router.post("/register", userController.createUser)
 router.post("/login", userController.loginUser)
@@ -28,7 +23,7 @@ router.delete("/products/:productId", productController.Deleteproduct)
 
 // =================================== cart User ============================
 
-router.post("/users/:userId/cart",MW.authentication ,MW.authorization, cartController.createCart)
+router.post("/users/:userId/cart", MW.authentication, MW.authorization,cartController.createCart)
 router.put("/users/:userId/cart", MW.authentication ,MW.authorization,cartController.updatecart)
 router.get("/users/:userId/cart",MW.authentication ,MW.authorization, cartController.getcart)
 router.delete("/users/:userId/cart",MW.authentication ,MW.authorization, cartController.deletecart)
@@ -36,13 +31,15 @@ router.delete("/users/:userId/cart",MW.authentication ,MW.authorization, cartCon
 
 // =================================== order User ============================
 
-
 router.post("/users/:userId/orders", orderController.createorder)
 router.get("/users/:userId/orders",orderController.updateOrder)
 
 
 // ============================  Checking all request validation ========================
+
 router.all("/**", function (req, res) {
     return res.status(400).send({status:false , message: "Invalid request"})
 })
+
+
 module.exports = router; 
