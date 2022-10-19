@@ -281,7 +281,8 @@ const updateUser = async function (req, res) {
 
         let data = req.body;
         let userId = req.params.userId
-        let { fname, lname, email, profileImage, phone, password, address } = data;
+        let files = req.files
+        let { fname, lname, email, phone, password, address } = data;
 
         // ======validation of Objectid in params==============
         if (!isValid(req.params.userId)) {
@@ -289,7 +290,7 @@ const updateUser = async function (req, res) {
         }
 
         // ======checking body is empty or not======================
-        if (Object.keys(req.body).length == 0) {
+        if (Object.keys(req.body).length == 0 && !files) {
             return res.status(400).send({ status: false, msg: "Enter valid data to update" });
         }
 
@@ -374,22 +375,28 @@ const updateUser = async function (req, res) {
 
         }
         //======================================valiation of profileImage ================================
-        let files = req.files
-        let profile = files[0].originalname;
 
-        if (!(/\.(jpe?g|png|webp|jpg)$/i).test(profile)) {
-            return res.status(400).send({ status: false, message: " Please provide only image  of format only-> jpe?g|png|webp|jpg" })
+        if (files.length > 0) {
+
+            let profile = files[0].originalname;
+
+            if (!(/\.(jpe?g|png|webp|jpg)$/i).test(profile)) {
+                return res.status(400).send({ status: false, message: " Please provide only image  of format only-> jpe?g|png|webp|jpg" })
+            }
+
+            if (!(files && files.length > 0)) {
+                return res.status(400).send({ status: false, message: "Please Provide The Profile Image" });
+            }
+
+            var uploadedProfileImage = await uploadFile(files[0])
+            data.profileImage = uploadedProfileImage
         }
 
-        if (files && files.length > 0) {
-            //upload to s3 and get the uploaded link
-            var uploadedFileURL = await uploadFile(files[0])
-        }
 
         //======================================= Update The data===============
         let updatedUser = await userModel.findOneAndUpdate({ _id: userId }, {
             $set: {
-                fname: fname, lname: lname, email: email, phone: phone, password: password, profileImage: uploadedFileURL, "address.shipping.city": shippingCity, "address.shipping.street": shippingStreet, "address.shipping.pincode": shippingPincode, "address.billing.city": billingCity, "address.billing.street": billingStreet, "address.billing.pincode": billingPincode
+                fname: fname, lname: lname, email: email, phone: phone, password: password, profileImage: uploadedProfileImage, "address.shipping.city": shippingCity, "address.shipping.street": shippingStreet, "address.shipping.pincode": shippingPincode, "address.billing.city": billingCity, "address.billing.street": billingStreet, "address.billing.pincode": billingPincode
             }
         }, { new: true })
 
