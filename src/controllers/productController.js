@@ -46,13 +46,13 @@ const createProduct = async function (req, res) {
         if (!isValid(currencyId)) {
             return res.status(400).send({ status: false, Message: "Please provide currencyId" })
         }
-        if (currencyId != "INR" ) {
+        if (currencyId != "INR") {
             return res.status(400).send({ Status: false, msg: "currency Id is not valid It should be INR " })
         }
         if (!isValid(currencyFormat)) {
             return res.status(400).send({ status: false, Message: "Please provide currency Format" })
         }
-        if (currencyFormat != "₹" ) {
+        if (currencyFormat != "₹") {
             return res.status(400).send({ Status: false, msg: "currencyFormat is not valid It should be ₹ " })
         }
 
@@ -282,7 +282,7 @@ const updateProductById = async function (req, res) {
                     return res.status(400).send({ status: false, message: `${availableSizes} already exists ` })
                 }
             }
-            
+
         }
         //=====================if product image is present===================
         if (files.length > 0) {
@@ -325,7 +325,7 @@ const Deleteproduct = async function (req, res) {
         if (!mongoose.isValidObjectId(productId)) {
             return res.status(400).send({ status: false, message: " invalid productId or invalid product length" })
         }
-        let findproduct = await productModel.findOne({ _id: productId , isDeleted: false})
+        let findproduct = await productModel.findOne({ _id: productId, isDeleted: false })
         if (!findproduct) {
             return res.status(404).send({ status: false, message: "product not found or already delete" })
         }

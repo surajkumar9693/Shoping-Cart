@@ -30,12 +30,12 @@ const orderSchema = new mongoose.Schema({
     },
     totalItems: {
         type: Number,
-        required: true, 
+        required: true,
         //comment: "Holds total number of items in the cart"
     },
     totalQuantity: {
         type: Number,
-        required: true, 
+        required: true,
         //comment: "Holds total number of quantity in the cart"
     },
     cancellable:

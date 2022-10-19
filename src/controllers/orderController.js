@@ -4,21 +4,6 @@ const productModel = require("../models/productsModel.js")
 const orderModel = require("../models/orderModel.js")
 const mongoose = require('mongoose');
 
-//  =================================== Validation Value Of Create cart ==================
-
-const isValid = function (value) {
-    if (typeof value === 'undefined' || value === null) return false
-    if (typeof value === 'string' && value.trim().length === 0) return false
-    if (value === 0) return false
-    return true;
-}
-
-const isValidstatus = function (availableSizes) {
-    return ["pending", "completed", "cancled"].indexOf(status) !== -1;
-}
-
-
-
 //===========================================create order===================================================
 
 
@@ -48,8 +33,6 @@ const createorder = async function (req, res) {
             return res.status(400).send({ status: false, message: " invalid cartId length" })
         }
 
-        // let findcart = await cartModel.findOne({_id: cartId}) 
-
         let findcart = await cartModel.findById(cartId)
 
         if (!findcart) {
@@ -71,7 +54,7 @@ const createorder = async function (req, res) {
 
 
         const orderData = await orderModel.create(data)
-        return res.status(201).send({ status: true, message: "User created successfully", data: orderData })
+        return res.status(201).send({ status: true, message: "Success", data: orderData })
 
     } catch (error) {
         console.log(error)
@@ -84,57 +67,52 @@ const createorder = async function (req, res) {
 //====================================Update Order==============================================
 
 const updateOrder = async function (req, res) {
-    try{
-     let userId = req.params.userId
- 
-     let {status, orderId} = req.body
- 
-     if(status!='completed'|| status!='cancled') {
-         return res.status(400).send({status:false,msg:'status should take only cancled, completed'})
-     }
- 
-     if (!userId) {
-         return res.status(400).send({ status: false, msg: "userId not provided" })
-     }
-     if (!mongoose.isValidObjectId(userId)) {
-         return res.status(400).send({ status: false, message: " invalid userId length" })
-     }
- 
-     let user = await userModel.findById({ _id: userId })
-     if (!user) {
-         return res.status(400).send({ status: false, message: " not found" })
-     }
- 
-     let order = await orderModel.findById({ _id: orderId })
-     
-     if (order.userId !== user.userId) {
-         return res.status(404).send({ msg: "Orrder Doesnot Belong to the User" })
-     }
-     if(order.status == 'completed') {
-         return res.status(400).send({status:false,msg:'order is already completed, cannot be changed now'})
-     }
-     if(order.status == "cancelled"){
-         return res.status(400).send({status:false,msg:"order is already cancelled,cannot be changed now"})
-     } 
-     if(order.cancellable == false && status == "cancelled"){
-         return res.status(400).send({status:false,msg:"order cannot be cancelled"})
-     } 
- 
- 
-     if(order.cancellable == true && status == "cancelled"){
-         let  updatedOrder = await orderModel.findByIdAndUpdate(orderId, {status : status}, {new:true})
-          return res.status(200).send({status:true,msg:'order is cancelled', data : updatedOrder})
-      }
-      if(status == "completed"){
-       let  updatedOrder = await orderModel.findByIdAndUpdate(orderId, {status : status}, {new:true})
-       return res.status(200).send({status:true,msg:'order is completed', data : updatedOrder})
-      }
+    try {
+        let userId = req.params.userId
+
+        let { status, orderId } = req.body
+
+        if (!['completed', 'cancled'].includes(status)) return res.status(400).send({ status: false, msg: 'status should take only canceled, completed' })
+
+
+        if (!userId) {
+            return res.status(400).send({ status: false, msg: "userId not provided" })
+        }
+        if (!mongoose.isValidObjectId(userId)) {
+            return res.status(400).send({ status: false, message: " invalid userId length" })
+        }
+
+        let user = await userModel.findById({ _id: userId })
+        if (!user) {
+            return res.status(400).send({ status: false, message: " not found" })
+        }
+
+        let order = await orderModel.findById({ _id: orderId })
+
+        if (order.status == 'completed') {
+            return res.status(400).send({ status: false, msg: 'order is already completed, cannot be changed now' })
+        }
+        if (order.status == "cancelled") {
+            return res.status(400).send({ status: false, msg: "order is already cancelled,cannot be changed now" })
+        }
+        if (order.cancellable == false && status == "cancelled") {
+            return res.status(400).send({ status: false, msg: "order cannot be cancelled" })
+        }
+
+        if (order.cancellable == true && status == "cancelled") {
+            let updatedOrder = await orderModel.findByIdAndUpdate(orderId, { status: status }, { new: true })
+            return res.status(200).send({ status: true, msg: 'order is cancelled', data: updatedOrder })
+        }
+        if (status == "completed") {
+            let updatedOrder = await orderModel.findByIdAndUpdate(orderId, { status: status }, { new: true })
+            return res.status(200).send({ status: true, messge: 'Success', data: updatedOrder })
+        }
     }
     catch (error) {
-     
-     return res.status(500).send({ status: false, message: error.message })
- }
- }
- 
+
+        return res.status(500).send({ status: false, message: error.message })
+    }
+}
+
 module.exports.createorder = createorder
 module.exports.updateOrder = updateOrder
