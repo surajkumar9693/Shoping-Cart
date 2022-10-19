@@ -34,7 +34,7 @@ const createProduct = async function (req, res) {
             return res.status(400).send({ status: false, Message: "Please provide product's title" })
         }
         if (!isValid(description)) {
-            return res.status(400).send({ status: false, Message: "Please provide product's description" })           
+            return res.status(400).send({ status: false, Message: "Please provide product's description" })
         }
         if (!isValid(price)) {
             return res.status(400).send({ status: false, Message: "Please provide product's price" })
@@ -53,7 +53,7 @@ const createProduct = async function (req, res) {
         }
         if (currencyFormat != "₹") {
             return res.status(400).send({ Status: false, msg: "currencyFormat is not valid It should be ₹" })
-            }
+        }
         if (!isValid(style)) {
             return res.status(400).send({ status: false, Message: "Please provide product's style" })
         }
@@ -70,7 +70,13 @@ const createProduct = async function (req, res) {
         // =================================== Create  ProfileImage link by AWS =======================
         let files = req.files
 
-        if (!(files && files.length>0)) {
+        let profile = files[0].originalname;
+
+        if (!(/\.(jpe?g|png|webp|jpg)$/i).test(profile)) {
+            return res.status(400).send({ status: false, message: " Please provide only image  of format only-> jpe?g|png|webp|jpg" })
+        }
+
+        if (!(files && files.length > 0)) {
             return res.status(400).send({ status: false, message: "Please Provide The product Image" });
         }
 
@@ -149,7 +155,15 @@ const getProductByQuery = async function (req, res) {
             if (!Number(priceLessThan)) {
                 return res.status(400).send({ stastus: false, message: "PriceLessThan Invalid formet" })
             }
-            filter['price'] = { $gte: priceGreaterThan, $lte: priceLessThan }
+            filter['price'] = { $gt: priceGreaterThan, $lt: priceLessThan }
+        }
+
+        //validation for name sorting
+
+        if (name || name == '') {
+            if (!isValid(name)) return res.status(400).send({ stastus: false, message: "Invalid naming format!" });
+            const regex = new RegExp(name, 'g')
+            filter.title = regex;
         }
 
         // validation for price sorting
@@ -190,7 +204,7 @@ const getProductById = async function (req, res) {
         if (!allProducts || allProducts.isDeleted === true) {
             return res.status(404).send({ status: false, message: "product not found" })
         } else {
-            res.status(200).send({ status: true, message:"Success",data:allProducts })
+            res.status(200).send({ status: true, message: "Success", data: allProducts })
         }
     } catch (err) {
         console.log(err)
@@ -259,23 +273,29 @@ const updateProductById = async function (req, res) {
                     return res.status(400).send({ status: false, message: `invalid size parameter, Sizes must be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
                 }
             }
-        for(let c of product.availableSizes){
-            if(c == availableSizes ){
-                return res.status(400).send({status: false , message: `${availableSizes} already exists `  })
+            for (let c of product.availableSizes) {
+                if (c == availableSizes) {
+                    return res.status(400).send({ status: false, message: `${availableSizes} already exists ` })
+                }
             }
-        }
 
         }
         //=====================if product image is present===================
         if (req.files && req.files.length > 0) {
-            let files=req.files
+            let files = req.files
+
+            let profile = files[0].originalname;
+
+            if (!(/\.(jpe?g|png|webp|jpg)$/i).test(profile)) {
+                return res.status(400).send({ status: false, message: " Please provide only image  of format only-> jpe?g|png|webp|jpg" })
+            }
             //=================upload to s3 and get the uploaded link===============
             var uploadedFileURL = await upload.uploadFile(files[0]);
             data.productImage = uploadedFileURL
         }
         let updatedProduct = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false },
-             { $set: {data }, $push : {availableSizes:availableSizes}} ,
-              { new: true })
+            { $set: { data }, $push: { availableSizes: availableSizes } },
+            { new: true })
         return res.status(200).send({ status: true, msg: 'successfully updated', data: updatedProduct })
 
     }

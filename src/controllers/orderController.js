@@ -56,7 +56,7 @@ const createorder = async function (req, res) {
             return res.status(404).send({ status: false, message: "cart not found" })
         }
         let totalQuantity = 0
-        let cartitems=findcart.items
+        let cartitems = findcart.items
         for (let i = 0; i < cartitems.length; i++) totalQuantity += findcart.items[i].quantity
 
 
@@ -82,23 +82,35 @@ const createorder = async function (req, res) {
 }
 //====================================Update Order==============================================
 
-const updateOrder = async function(req,res){
+const updateOrder = async function (req, res) {
     let userId = req.params.userId
-    
-    let user = await userModel.findById({_id:userId})
-        if(!user){
-return res.send("not present")
-        }
 
-    
+    let {status, orderId} = req.body
 
-    let orderId = req.body.orderId
-    let order = await orderModel.findById({_id:orderId})
-    if(order.userId !== user.userId){
-        return res.status(404).send({msg:"not found"})
+    if (!userId) {
+        return res.status(400).send({ status: false, msg: "userId not provided" })
     }
-    let update = await orderModel.findOneAndUpdate({_id:userId},{status:cancled},{new:true})
-return res.send(update)
+    if (!mongoose.isValidObjectId(userId)) {
+        return res.status(400).send({ status: false, message: " invalid userId length" })
+    }
+
+    let user = await userModel.findById({ _id: userId })
+    if (!user) {
+        return res.status(400).send({ status: false, message: " not found" })
+    }
+
+    let order = await orderModel.findById({ _id: orderId })
+    
+    if (order.userId !== user.userId) {
+        return res.status(404).send({ msg: "not found" })
+    }
+
+    if (order.cancellable == false) {
+        return res.status(200).send({ status: false, msg: " not cancelled" })
+    } 
+
+    let update = await orderModel.findOneAndUpdate({ _id: userId }, { status: cancled }, { new: true })
+    return res.send(update)
 }
 
 

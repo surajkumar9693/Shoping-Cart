@@ -93,7 +93,7 @@ const createUser = async function (req, res) {
                 return res.status(400).send({ status: false, message: "address is in incorrect format" })
             }
             // ============================ Address of shipping ===========================
-          
+
 
             if (!address.shipping) {
                 return res.status(400).send({ status: false, message: "Please enter shipping address" })
@@ -122,7 +122,7 @@ const createUser = async function (req, res) {
 
             // ============================ Address of Billing ==============================
 
-            if (!address.billing) { 
+            if (!address.billing) {
                 return res.status(400).send({ status: false, message: "Please enter billing address" })
             }
             if (!address.billing.street) {
@@ -147,18 +147,19 @@ const createUser = async function (req, res) {
                 return res.status(400).send({ status: false, message: "PinCode Invalid , Please provide 6 Digit Number" })
             }
         }
-     
+
 
         // =================================== Create  ProfileImage link by AWS =======================
         let files = req.files
-        let profile = files.profile;
+        let profile = files[0].originalname;
 
-        if (!(files && files.length>0)) {
+        if (!(/\.(jpe?g|png|webp|jpg)$/i).test(profile)) {
+            return res.status(400).send({ status: false, message: " Please provide only image  of format only-> jpe?g|png|webp|jpg" })
+        }
+
+        if (!(files && files.length > 0)) {
             return res.status(400).send({ status: false, message: "Please Provide The Profile Image" });
         }
-        // if (!(/\.(jpe?g|tiff?|png|webp|bmp)$/i.test(files.originalname))) {
-        //     return res.status(400).send({status:false, message: "Invalid profile"})
-        // }
 
         const uploadedProfileImage = await uploadFile(files[0])
         data.profileImage = uploadedProfileImage
@@ -166,7 +167,7 @@ const createUser = async function (req, res) {
         //  bcrypt  Password and reAssign
         const hash = await bcrypt.hash(password, 10);
         data.password = hash;
-        
+
         data.address = address;
 
 
@@ -262,7 +263,7 @@ const getUsers = async function (req, res) {
         if (!allUsers) {
             return res.status(404).send({ status: false, message: "user not found" })
         } else {
-            return res.status(200).send({ status: true,message:"User profile details", data: allUsers })
+            return res.status(200).send({ status: true, message: "User profile details", data: allUsers })
         }
     } catch (error) {
         console.log(error)
@@ -374,6 +375,11 @@ const updateUser = async function (req, res) {
         }
         //======================================valiation of profileImage ================================
         let files = req.files
+        let profile = files[0].originalname;
+
+        if (!(/\.(jpe?g|png|webp|jpg)$/i).test(profile)) {
+            return res.status(400).send({ status: false, message: " Please provide only image  of format only-> jpe?g|png|webp|jpg" })
+        }
 
         if (files && files.length > 0) {
             //upload to s3 and get the uploaded link

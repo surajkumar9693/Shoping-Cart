@@ -100,7 +100,7 @@ const createCart = async function (req, res) {
             totalPrice += product.price * quantity
             totalPrice = totalPrice.toFixed(2)
             totalItems = itemsArr.length
-            
+
             const updatedCart = await cartModel.findOneAndUpdate({ _id: cartId }, ({
                 items: itemsArr, totalPrice: totalPrice, totalItems: totalItems
             }), { new: true }).select({ __v: 0 })
