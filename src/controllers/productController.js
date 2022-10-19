@@ -16,6 +16,7 @@ const isValidavailableSizes = function (availableSizes) {
 
 // ================================== Create product ===========================
 
+
 const createProduct = async function (req, res) {
 
     try {
@@ -45,15 +46,16 @@ const createProduct = async function (req, res) {
         if (!isValid(currencyId)) {
             return res.status(400).send({ status: false, Message: "Please provide currencyId" })
         }
-        if (currencyId != "INR") {
-            return res.status(400).send({ Status: false, msg: "currency Id is not valid It should be INR" })
+        if (currencyId != "INR" ) {
+            return res.status(400).send({ Status: false, msg: "currency Id is not valid It should be INR " })
         }
         if (!isValid(currencyFormat)) {
             return res.status(400).send({ status: false, Message: "Please provide currency Format" })
         }
-        if (currencyFormat != "₹") {
-            return res.status(400).send({ Status: false, msg: "currencyFormat is not valid It should be ₹" })
+        if (currencyFormat != "₹" ) {
+            return res.status(400).send({ Status: false, msg: "currencyFormat is not valid It should be ₹ " })
         }
+
         if (!isValid(style)) {
             return res.status(400).send({ status: false, Message: "Please provide product's style" })
         }
@@ -102,6 +104,7 @@ const createProduct = async function (req, res) {
     }
 
 }
+
 
 // ================================  Fetch Product By Qurery filters ===========================
 
@@ -166,7 +169,7 @@ const getProductByQuery = async function (req, res) {
             filter.title = regex;
         }
 
-        // validation for price sorting
+        // validation for price sorting 
         if (priceSort) {
             if (!((priceSort == 1) || (priceSort == -1))) {
                 return res.status(400).send({ status: false, message: 'In price sort it contains only 1 & -1' });
@@ -198,7 +201,7 @@ const getProductById = async function (req, res) {
         let data = req.params.productId
 
         if (!mongoose.isValidObjectId(data)) {
-            return res.status(400).send({ status: false, message: " invalid userId " })
+            return res.status(400).send({ status: false, message: " invalid productId " })
         }
         let allProducts = await productModel.findById({ _id: data })
         if (!allProducts || allProducts.isDeleted === true) {
@@ -216,9 +219,10 @@ const getProductById = async function (req, res) {
 const updateProductById = async function (req, res) {
     try {
         let productId = req.params.productId;
+        let files = req.files
 
         if (!mongoose.isValidObjectId(productId)) {
-            return res.status(400).send({ status: false, message: " invalid userId " })
+            return res.status(400).send({ status: false, message: " invalid productId " })
         }
         if (!isValid(productId)) return res.status(400).send({ status: false, msg: 'product Id is not valid' })
         let product = await productModel.findOne({ _id: productId, isDeleted: false })
@@ -278,25 +282,29 @@ const updateProductById = async function (req, res) {
                     return res.status(400).send({ status: false, message: `${availableSizes} already exists ` })
                 }
             }
-
+            
         }
         //=====================if product image is present===================
-        if (req.files && req.files.length > 0) {
-            let files = req.files
+        if (files.length > 0) {
 
             let profile = files[0].originalname;
 
             if (!(/\.(jpe?g|png|webp|jpg)$/i).test(profile)) {
                 return res.status(400).send({ status: false, message: " Please provide only image  of format only-> jpe?g|png|webp|jpg" })
             }
-            //=================upload to s3 and get the uploaded link===============
-            var uploadedFileURL = await upload.uploadFile(files[0]);
-            data.productImage = uploadedFileURL
+
+            if (!(files && files.length > 0)) {
+                return res.status(400).send({ status: false, message: "Please Provide The Profile Image" });
+            }
+
+            var uploadedProfileImage = await uploadFile(files[0])
+            data.profileImage = uploadedProfileImage
         }
+
         let updatedProduct = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false },
-            { $set: { data }, $push: { availableSizes: availableSizes } },
+            { $set: data },
             { new: true })
-        return res.status(200).send({ status: true, msg: 'successfully updated', data: updatedProduct })
+        return res.status(200).send({ status: true, msg: 'Update product details is successful', data: updatedProduct })
 
     }
 
@@ -315,20 +323,14 @@ const Deleteproduct = async function (req, res) {
             return res.status(400).send({ status: false, msg: "productId not present" })
         }
         if (!mongoose.isValidObjectId(productId)) {
-            return res.status(400).send({ status: false, message: " invalid productId length" })
+            return res.status(400).send({ status: false, message: " invalid productId or invalid product length" })
         }
-        let findproduct = await productModel.findById({ _id: productId })
+        let findproduct = await productModel.findOne({ _id: productId , isDeleted: false})
         if (!findproduct) {
-            return res.status(404).send({ status: false, message: "product not found" })
+            return res.status(404).send({ status: false, message: "product not found or already delete" })
         }
 
-        const checkproductId = await productModel.findOne({ _id: productId, isDeleted: false })
-
-        if (!checkproductId) {
-            return res.status(404).send({ status: false, message: "product allready delete so Not found " })
-        }
-
-        let deletedproduct = await productModel.findByIdAndUpdate({ _id: productId },
+        let deletedproduct = await productModel.findOneAndUpdate({ _id: productId },
             { $set: { isDeleted: true } },
             { new: true });
 

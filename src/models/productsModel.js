@@ -31,7 +31,7 @@ const productsSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    productImage: {
+    productImage: { 
         type: String,
         required: true
     },  // s3 link
