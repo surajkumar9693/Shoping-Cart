@@ -271,18 +271,23 @@ const updateProductById = async function (req, res) {
             if (!isValid(style)) return res.status(400).send({ status: false, msg: 'Style description is not valid' })
         }
 
+        let size = availableSizes.split(",")
+        
         if (availableSizes) {
-            for (let i = 0; i < availableSizes.length; i++) {
-                if (!(["XS", "X", "S", "M", "L", "XL", "XXL"].includes(availableSizes[i]))) {
+            for (let i = 0; i < size.length; i++) {
+                if (!(["XS", "X", "S", "M", "L", "XL", "XXL"].includes(size[i]))) {
                     return res.status(400).send({ status: false, message: `invalid size parameter, Sizes must be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
                 }
-            }
-            for (let c of product.availableSizes) {
-                if (c == availableSizes) {
-                    return res.status(400).send({ status: false, message: `${availableSizes} already exists ` })
+            
+                for (let c of product.availableSizes) {
+                    console.log(c)
+                    if (c == size[i]) {
+                        return res.status(400).send({ status: false, message: `${size[i]} already exists ` })
+                    }
                 }
+                product.availableSizes.push(size[i])
             }
-
+            data.availableSizes = product.availableSizes
         }
         //=====================if product image is present===================
         if (files.length > 0) {
