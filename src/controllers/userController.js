@@ -87,10 +87,15 @@ const createUser = async function (req, res) {
         if (!address) {
             return res.status(400).send({ status: false, message: "Please enter address" })
         }
-        address = JSON.parse(address)
+        try {
+            address = JSON.parse(address)
+        } catch (error) {
+            return res.status(400).send({ status: false, message: "address is of invalid format "})
+        }
+       
         if (address) {
             if (typeof address != "object") {
-                return res.status(400).send({ status: false, message: "address is in incorrect format" })
+                return res.status(400).send({ status: false, message: "address is of incorrect format" })
             }
             // ============================ Address of shipping ===========================
 
