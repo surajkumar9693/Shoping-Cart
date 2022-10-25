@@ -38,7 +38,6 @@ const createorder = async function (req, res) {
         if (!findcart) {
             return res.status(404).send({ status: false, message: "cart not found" })
         }
-        let totalQuantity = 0
         let cartitems = findcart.items
         for (let i = 0; i < cartitems.length; i++) totalQuantity += findcart.items[i].quantity
 

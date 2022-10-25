@@ -62,9 +62,7 @@ const createProduct = async function (req, res) {
         if (!isValid(availableSizes)) {
             return res.status(400).send({ status: false, Message: "Please provide product's availableSizes" })
         }
-        if (!(["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(availableSizes) !== -1)) {
-            return res.status(400).send({ status: false, Message: "Please provide product's  wrong availableSizes" })
-        }
+       
         if (!isValidavailableSizes(requestBody.availableSizes)) {
             return res.status(400).send({ status: false, message: "availableSizes is missing or you left empty" });
         }
@@ -115,11 +113,8 @@ const getProductByQuery = async function (req, res) {
         let data = req.query;
 
         let filter = { isDeleted: false }
-        // if (Object.keys(data).length == 0) {
-        //     return res.status(400).send({ status: false, message: "Please Provide data In Params" })
-        // }
-
-        let { size, name, priceGreaterThan, priceLessThan, priceSort } = data;
+      
+        let { size, name, priceGreaterThan, priceLessThan, priceSort } = data; 
 
 
         if (size) {
@@ -199,6 +194,9 @@ const getProductByQuery = async function (req, res) {
 const getProductById = async function (req, res) {
     try {
         let data = req.params.productId
+        if(!data){
+            return res.status(400).send({status: false,massage :"id not fonds"})
+        }
 
         if (!mongoose.isValidObjectId(data)) {
             return res.status(400).send({ status: false, message: " invalid productId " })
